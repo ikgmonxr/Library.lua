@@ -1,6 +1,3 @@
--- ==========================================
--- IKGONAVI HUB - ULTIMATE GLASS EDITION
--- ==========================================
 local Library = {}
 
 local CoreGui = game:GetService("CoreGui")
@@ -26,16 +23,17 @@ local Theme = {
     FontBold = Enum.Font.GothamBold
 }
 
--- Iconos limpios de alta calidad (Estilo moderno)
+-- Iconos HD verificados y de alta calidad para Roblox UI
 local Icons = {
-    Main = "rbxassetid://6023426915",
-    ESP = "rbxassetid://6035047409",
-    Gun = "rbxassetid://6028481358",
-    Farm = "rbxassetid://6034287593",
-    Animations = "rbxassetid://6031302932",
-    Settings = "rbxassetid://6034818372",
-    Close = "rbxassetid://6031094678",
-    Warning = "rbxassetid://6035047409"
+    Dashboard = "rbxassetid://7733960981",
+    Combat = "rbxassetid://7734053421",
+    Visuals = "rbxassetid://7733920677",
+    Settings = "rbxassetid://7734052925",
+    Shield = "rbxassetid://7733964400",
+    Close = "rbxassetid://7074246106",
+    Warning = "rbxassetid://7733955556",
+    User = "rbxassetid://7733968058",
+    Folder = "rbxassetid://7733955556"
 }
 
 local function PlaySound(soundId, vol)
@@ -72,7 +70,7 @@ function Library:CreateWindow(config)
     pcall(function() ScreenGui.Parent = CoreGui end)
     if not ScreenGui.Parent then ScreenGui.Parent = PlayerGui end
 
-    -- Notificaciones
+    -- Sistema de Notificaciones
     local NotificationHolder = Instance.new("Frame")
     NotificationHolder.Size = UDim2.new(0, 320, 1, -40)
     NotificationHolder.Position = UDim2.new(1, -340, 0, 20)
@@ -142,7 +140,7 @@ function Library:CreateWindow(config)
         end)
     end
 
-    -- Marco Principal con efecto Glassmorphism profundo
+    -- Marco Principal con Glassmorphism
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Size = UDim2.new(0, 860, 0, 560)
@@ -153,7 +151,6 @@ function Library:CreateWindow(config)
     MainFrame.Active = true
     MainFrame.Parent = ScreenGui
 
-    -- Desenfoque de fondo simulado / Glass extra
     local GlassOverlay = Instance.new("Frame")
     GlassOverlay.Size = UDim2.new(1, 0, 1, 0)
     GlassOverlay.BackgroundColor3 = Theme.GlassOverlay
@@ -296,11 +293,11 @@ function Library:CreateWindow(config)
         tabStroke.Transparency = 1
         
         local TabIcon = Instance.new("ImageLabel")
-        TabIcon.Size = UDim2.new(0, 20, 0, 20)
-        TabIcon.Position = UDim2.new(0, 16, 0.5, -10)
+        TabIcon.Size = UDim2.new(0, 18, 0, 18)
+        TabIcon.Position = UDim2.new(0, 16, 0.5, -9)
         TabIcon.BackgroundTransparency = 1
         TabIcon.ZIndex = 2
-        TabIcon.Image = iconId or Icons.Main
+        TabIcon.Image = iconId or Icons.Dashboard
         TabIcon.ImageColor3 = Theme.TextGray
         TabIcon.Parent = TabButton
         
@@ -421,7 +418,7 @@ function Library:CreateWindow(config)
             ServerIcon.Position = UDim2.new(0, 16, 0.5, -9)
             ServerIcon.BackgroundTransparency = 1
             ServerIcon.ZIndex = 2
-            ServerIcon.Image = cardIcon or Icons.Main
+            ServerIcon.Image = cardIcon or Icons.Shield
             ServerIcon.ImageColor3 = Theme.Accent
             ServerIcon.Parent = Header
             
