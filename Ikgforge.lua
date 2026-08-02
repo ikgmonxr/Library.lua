@@ -1,6 +1,6 @@
 -- =====================================================================================
--- IKGONAVI HUB - ADVANCED ULTIMATE ARCHITECTURE (SELF-CONTAINED UI + ENGINE)
--- VERSION: 8.5.0-PRO // MAXIMAL CODEBASE & FULL ANIMATION SUITE
+-- IKGONAVI HUB // CUSTOM ULTIMATE ENTERPRISE ENGINE (100% NATIVE UI LIBRARY)
+-- VERSION: 12.0.0-PRO // MASSIVE CODEBASE & ADVANCED FRAMEWORK
 -- =====================================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -21,8 +21,8 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local Camera = Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 
--- Limpieza de instancias previas
-for _, guiName in ipairs({"IKGHUB", "IkgonaviHub_Overlays", "IkgonaviHub_Ultimate", "IkgonaviHub_CoreEngine"}) do
+-- Limpieza preventiva de instancias duplicadas en memoria
+for _, guiName in ipairs({"IKGHUB", "IkgonaviHub_Overlays", "IkgonaviHub_Ultimate", "IkgonaviHub_NativeEngine"}) do
     pcall(function()
         if CoreGui:FindFirstChild(guiName) then CoreGui[guiName]:Destroy() end
         if PlayerGui:FindFirstChild(guiName) then PlayerGui[guiName]:Destroy() end
@@ -30,60 +30,64 @@ for _, guiName in ipairs({"IKGHUB", "IkgonaviHub_Overlays", "IkgonaviHub_Ultimat
 end
 
 -- =====================================================================================
--- MODULO 1: SISTEMA DE BYPASS Y PROTECCIÓN DE ANTICHEAT (BAC-8348 / HYPERION STUBS)
+-- SUBSISTEMA 1: MOTOR DE BYPASS Y PROTECCIÓN DE TELEMETRÍA (ANTI-KICK / HYPERION STUBS)
 -- =====================================================================================
-pcall(function()
-    local oldIndex
-    oldIndex = hookmetamethod(game, "__index", function(self, index)
-        if not checkcaller() then
-            if (self == CoreGui or self == LocalPlayer:FindFirstChild("PlayerGui")) and (index == "FindFirstChild" or index == "FindChild" or index == "GetChildren") then
-                return oldIndex(self, index)
-            end
-        end
-        return oldIndex(self, index)
-    end)
-end)
-
-pcall(function()
-    local mt = getrawmetatable(game)
-    setreadonly(mt, false)
-    local oldNamecall = mt.__namecall
-    mt.__namecall = newcclosure(function(self, ...)
-        local method = getnamecallmethod()
-        local args = {...}
-        if method == "Kick" and self == LocalPlayer then return end
-        for _, arg in ipairs(args) do
-            if typeof(arg) == "string" then
-                local lowerArg = arg:lower()
-                if lowerArg:find("bac") or lowerArg:find("cheat") or lowerArg:find("exploit") or lowerArg:find("error 267") or lowerArg:find("detected") or lowerArg:find("hyperion") or lowerArg:find("8348") then
-                    if method == "FireServer" or method == "InvokeServer" then return end
+local BypassManager = {}
+function BypassManager.Initialize()
+    pcall(function()
+        local oldIndex
+        oldIndex = hookmetamethod(game, "__index", function(self, index)
+            if not checkcaller() then
+                if (self == CoreGui or self == LocalPlayer:FindFirstChild("PlayerGui")) and (index == "FindFirstChild" or index == "FindChild" or index == "GetChildren") then
+                    return oldIndex(self, index)
                 end
             end
-        end
-        return oldNamecall(self, ...)
+            return oldIndex(self, index)
+        end)
     end)
-    setreadonly(mt, true)
-end)
 
-pcall(function()
-    for _, v in ipairs(getconnections(ScriptContext.Error)) do v:Disable() end
-end)
+    pcall(function()
+        local mt = getrawmetatable(game)
+        setreadonly(mt, false)
+        local oldNamecall = mt.__namecall
+        mt.__namecall = newcclosure(function(self, ...)
+            local method = getnamecallmethod()
+            local args = {...}
+            if method == "Kick" and self == LocalPlayer then return end
+            for _, arg in ipairs(args) do
+                if typeof(arg) == "string" then
+                    local lowerArg = arg:lower()
+                    if lowerArg:find("bac") or lowerArg:find("cheat") or lowerArg:find("exploit") or lowerArg:find("error 267") or lowerArg:find("detected") or lowerArg:find("hyperion") or lowerArg:find("8348") then
+                        if method == "FireServer" or method == "InvokeServer" then return end
+                    end
+                end
+            end
+            return oldNamecall(self, ...)
+        end)
+        setreadonly(mt, true)
+    end)
+
+    pcall(function()
+        for _, v in ipairs(getconnections(ScriptContext.Error)) do v:Disable() end
+    end)
+end
+BypassManager.Initialize()
 
 -- =====================================================================================
--- MODULO 2: CONFIGURACIÓN DE TEMA Y ESTILOS VISUALES
+-- SUBSISTEMA 2: TEMA VISUAL, ESTILOS Y RECURSOS VECTORIALES
 -- =====================================================================================
 local Theme = {
-    MainBg = Color3.fromRGB(10, 10, 15),
-    GlassOverlay = Color3.fromRGB(16, 16, 24),
-    CardBg = Color3.fromRGB(18, 18, 28),
-    CardHover = Color3.fromRGB(26, 26, 40),
+    MainBg = Color3.fromRGB(7, 7, 10),
+    GlassOverlay = Color3.fromRGB(12, 12, 18),
+    CardBg = Color3.fromRGB(15, 15, 22),
+    CardHover = Color3.fromRGB(22, 22, 32),
     Accent = Color3.fromRGB(138, 43, 226),
     AccentGlow = Color3.fromRGB(186, 85, 211),
-    TabActive = Color3.fromRGB(45, 22, 75),
-    TextWhite = Color3.fromRGB(250, 250, 255),
-    TextGray = Color3.fromRGB(140, 140, 165),
-    Border = Color3.fromRGB(55, 35, 90),
-    ToggleOff = Color3.fromRGB(30, 25, 45),
+    TabActive = Color3.fromRGB(38, 18, 65),
+    TextWhite = Color3.fromRGB(245, 245, 255),
+    TextGray = Color3.fromRGB(130, 130, 155),
+    Border = Color3.fromRGB(45, 25, 75),
+    ToggleOff = Color3.fromRGB(22, 18, 35),
     SuccessGreen = Color3.fromRGB(46, 204, 113),
     ErrorRed = Color3.fromRGB(231, 76, 60),
     FontMain = Enum.Font.GothamMedium,
@@ -105,19 +109,21 @@ local Icons = {
     Smile = "rbxassetid://7733960981"
 }
 
--- Utilidades de Audio y Animación
-local function PlaySound(soundId, vol)
+-- =====================================================================================
+-- SUBSISTEMA 3: UTILIDADES DE AUDIO, TWEEN Y ANIMACIONES FLUIDAS
+-- =====================================================================================
+local function PlaySoundEffect(soundId, vol)
     pcall(function()
         local sound = Instance.new("Sound")
         sound.SoundId = soundId or "rbxassetid://6895057850"
-        sound.Volume = vol or 0.25
+        sound.Volume = vol or 0.2
         sound.Parent = CoreGui
         sound:Play()
         task.delay(1, function() sound:Destroy() end)
     end)
 end
 
-local function Tween(obj, props, info)
+local function TweenObject(obj, props, info)
     local tweenInfo = info or TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
     local tween = TweenService:Create(obj, tweenInfo, props)
     tween:Play()
@@ -125,23 +131,24 @@ local function Tween(obj, props, info)
 end
 
 -- =====================================================================================
--- MODULO 3: CONSTRUCTOR DE LA INTERFAZ GRÁFICA (UI LIBRARY NATIVA INTEGRADA)
+-- SUBSISTEMA 4: CONSTRUCTOR DE INTERFAZ GRÁFICA NATIVA (UI LIBRARY ENGINE)
 -- =====================================================================================
-local IkgonLibrary = {}
+local NativeLibrary = {}
 
-function IkgonLibrary:CreateWindow(config)
+function NativeLibrary:CreateWindow(config)
     local windowName = config.Name or "IKGONAVI HUB"
-    local subtitleText = config.Subtitle or "Advanced Suite v8.5"
+    local subtitleText = config.Subtitle or "Native Enterprise Engine v12.0"
 
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "IkgonaviHub_CoreEngine"
+    ScreenGui.Name = "IkgonaviHub_NativeEngine"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    ScreenGui.DisplayOrder = 99999
+    ScreenGui.DisplayOrder = 999999
     
     pcall(function() ScreenGui.Parent = CoreGui end)
     if not ScreenGui.Parent then ScreenGui.Parent = PlayerGui end
 
+    -- Sistema de Notificaciones Integrado
     local NotificationHolder = Instance.new("Frame")
     NotificationHolder.Size = UDim2.new(0, 320, 1, -40)
     NotificationHolder.Position = UDim2.new(1, -340, 0, 20)
@@ -153,9 +160,9 @@ function IkgonLibrary:CreateWindow(config)
     NotifLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
     NotifLayout.Padding = UDim.new(0, 10)
 
-    function IkgonLibrary:Notify(title, message, duration)
+    function NativeLibrary:Notify(title, message, duration)
         duration = duration or 3
-        PlaySound("rbxassetid://6895057850", 0.3)
+        PlaySoundEffect("rbxassetid://6895057850", 0.25)
         
         local NotifCard = Instance.new("Frame")
         NotifCard.Size = UDim2.new(1, 0, 0, 70)
@@ -198,19 +205,20 @@ function IkgonLibrary:CreateWindow(config)
         MsgLbl.TextXAlignment = Enum.TextXAlignment.Left
         MsgLbl.TextWrapped = true
         
-        Tween(NotifCard, {Position = UDim2.new(0, 0, 0, 0)}, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out))
+        TweenObject(NotifCard, {Position = UDim2.new(0, 0, 0, 0)}, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out))
         
         task.delay(duration, function()
-            Tween(NotifCard, {Position = UDim2.new(1, 60, 0, 0), BackgroundTransparency = 1}, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In))
+            TweenObject(NotifCard, {Position = UDim2.new(1, 60, 0, 0), BackgroundTransparency = 1}, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In))
             task.wait(0.3)
             NotifCard:Destroy()
         end)
     end
 
+    -- Ventana Principal
     local MainFrame = Instance.new("Frame", ScreenGui)
     MainFrame.Name = "MainFrame"
-    MainFrame.Size = UDim2.new(0, 880, 0, 580)
-    MainFrame.Position = UDim2.new(0.5, -440, 0.5, -290)
+    MainFrame.Size = UDim2.new(0, 940, 0, 620)
+    MainFrame.Position = UDim2.new(0.5, -470, 0.5, -310)
     MainFrame.BackgroundColor3 = Theme.MainBg
     MainFrame.BackgroundTransparency = 0.05
     MainFrame.BorderSizePixel = 0
@@ -228,13 +236,14 @@ function IkgonLibrary:CreateWindow(config)
     MainStroke.Color = Theme.Border
     MainStroke.Thickness = 1.5
 
+    -- Barra Superior
     local TopBar = Instance.new("Frame", MainFrame)
     TopBar.Size = UDim2.new(1, 0, 0, 65)
     TopBar.BackgroundTransparency = 1
     TopBar.ZIndex = 2
 
     local HubTitle = Instance.new("TextLabel", TopBar)
-    HubTitle.Size = UDim2.new(0, 560, 0, 24)
+    HubTitle.Size = UDim2.new(0, 620, 0, 24)
     HubTitle.Position = UDim2.new(0, 24, 0, 14)
     HubTitle.BackgroundTransparency = 1
     HubTitle.ZIndex = 2
@@ -245,7 +254,7 @@ function IkgonLibrary:CreateWindow(config)
     HubTitle.TextXAlignment = Enum.TextXAlignment.Left
 
     local HubSubtitle = Instance.new("TextLabel", TopBar)
-    HubSubtitle.Size = UDim2.new(0, 560, 0, 16)
+    HubSubtitle.Size = UDim2.new(0, 620, 0, 16)
     HubSubtitle.Position = UDim2.new(0, 24, 0, 38)
     HubSubtitle.BackgroundTransparency = 1
     HubSubtitle.ZIndex = 2
@@ -276,22 +285,22 @@ function IkgonLibrary:CreateWindow(config)
     CloseIcon.ImageColor3 = Theme.Accent
 
     CloseBtn.MouseButton1Click:Connect(function()
-        PlaySound("rbxassetid://6895057850", 0.5)
-        Tween(MainFrame, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In))
+        PlaySoundEffect("rbxassetid://6895057850", 0.4)
+        TweenObject(MainFrame, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In))
         task.wait(0.3)
         ScreenGui:Destroy()
     end)
 
     CloseBtn.MouseEnter:Connect(function() 
-        Tween(CloseBtn, {BackgroundColor3 = Color3.fromRGB(70, 35, 105), BackgroundTransparency = 0})
-        Tween(closeStroke, {Color = Theme.Accent})
+        TweenObject(CloseBtn, {BackgroundColor3 = Color3.fromRGB(70, 35, 105), BackgroundTransparency = 0})
+        TweenObject(closeStroke, {Color = Theme.Accent})
     end)
     CloseBtn.MouseLeave:Connect(function() 
-        Tween(CloseBtn, {BackgroundColor3 = Theme.CardBg, BackgroundTransparency = 0.2})
-        Tween(closeStroke, {Color = Theme.Border})
+        TweenObject(CloseBtn, {BackgroundColor3 = Theme.CardBg, BackgroundTransparency = 0.2})
+        TweenObject(closeStroke, {Color = Theme.Border})
     end)
 
-    -- Arrastrar ventana (Draggable)
+    -- Arrastrar ventana con el mouse
     local dragging, dragStart, startPos
     TopBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -310,8 +319,9 @@ function IkgonLibrary:CreateWindow(config)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
     end)
 
+    -- Barra Lateral (Sidebar)
     local Sidebar = Instance.new("ScrollingFrame", MainFrame)
-    Sidebar.Size = UDim2.new(0, 210, 1, -85)
+    Sidebar.Size = UDim2.new(0, 220, 1, -85)
     Sidebar.Position = UDim2.new(0, 16, 0, 70)
     Sidebar.BackgroundTransparency = 1
     Sidebar.ZIndex = 2
@@ -322,8 +332,8 @@ function IkgonLibrary:CreateWindow(config)
     SidebarLayout.Padding = UDim.new(0, 8)
 
     local ContentContainer = Instance.new("Frame", MainFrame)
-    ContentContainer.Size = UDim2.new(1, -246, 1, -85)
-    ContentContainer.Position = UDim2.new(0, 236, 0, 70)
+    ContentContainer.Size = UDim2.new(1, -256, 1, -85)
+    ContentContainer.Position = UDim2.new(0, 250, 0, 70)
     ContentContainer.BackgroundTransparency = 1
     ContentContainer.ZIndex = 2
 
@@ -394,31 +404,31 @@ function IkgonLibrary:CreateWindow(config)
         table.insert(TabsList, {Btn = TabButton, Icon = TabIcon, Label = TabLabelText, Page = TabPage, Stroke = tabStroke})
         
         TabButton.MouseButton1Click:Connect(function()
-            PlaySound("rbxassetid://6895057850", 0.4)
+            PlaySoundEffect("rbxassetid://6895057850", 0.3)
             for _, t in ipairs(TabsList) do
                 t.Page.Visible = false
-                Tween(t.Btn, {BackgroundTransparency = 1})
-                Tween(t.Label, {TextColor3 = Theme.TextGray})
-                Tween(t.Icon, {ImageColor3 = Theme.TextGray})
-                Tween(t.Stroke, {Transparency = 1})
+                TweenObject(t.Btn, {BackgroundTransparency = 1})
+                TweenObject(t.Label, {TextColor3 = Theme.TextGray})
+                TweenObject(t.Icon, {ImageColor3 = Theme.TextGray})
+                TweenObject(t.Stroke, {Transparency = 1})
             end
             TabPage.Visible = true
-            Tween(TabButton, {BackgroundTransparency = 0})
-            Tween(TabLabelText, {TextColor3 = Theme.TextWhite})
-            Tween(TabIcon, {ImageColor3 = Theme.Accent})
-            Tween(tabStroke, {Transparency = 0.4})
+            TweenObject(TabButton, {BackgroundTransparency = 0})
+            TweenObject(TabLabelText, {TextColor3 = Theme.TextWhite})
+            TweenObject(TabIcon, {ImageColor3 = Theme.Accent})
+            TweenObject(tabStroke, {Transparency = 0.4})
         end)
         
         TabButton.MouseEnter:Connect(function()
             if TabPage.Visible == false then
-                Tween(TabButton, {BackgroundTransparency = 0.5})
-                Tween(TabLabelText, {TextColor3 = Theme.TextWhite})
+                TweenObject(TabButton, {BackgroundTransparency = 0.5})
+                TweenObject(TabLabelText, {TextColor3 = Theme.TextWhite})
             end
         end)
         TabButton.MouseLeave:Connect(function()
             if TabPage.Visible == false then
-                Tween(TabButton, {BackgroundTransparency = 1})
-                Tween(TabLabelText, {TextColor3 = Theme.TextGray})
+                TweenObject(TabButton, {BackgroundTransparency = 1})
+                TweenObject(TabLabelText, {TextColor3 = Theme.TextGray})
             end
         end)
 
@@ -476,7 +486,7 @@ function IkgonLibrary:CreateWindow(config)
             
             CardLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
                 Card.Size = UDim2.new(1, 0, 0, CardLayout.AbsoluteContentSize.Y + 12)
-                TargetCol.CanvasSize = UDim2.new(0, 0, 0, TargetCol.UIListLayout.AbsoluteContentSize.Y + 25)
+                TargetCol.CanvasSize = UDim2.new(0, 0, 0, TargetCol.UIListLayout.AbsoluteContentSize.Y + 30)
             end)
             
             local ElementsAPI = {}
@@ -518,11 +528,11 @@ function IkgonLibrary:CreateWindow(config)
                 
                 local state = default
                 ToggleBtn.MouseButton1Click:Connect(function()
-                    PlaySound("rbxassetid://6895057850", 0.5)
+                    PlaySoundEffect("rbxassetid://6895057850", 0.3)
                     state = not state
-                    Tween(ToggleBtn, {BackgroundColor3 = state and Theme.Accent or Theme.ToggleOff})
-                    Tween(Circle, {Position = UDim2.new(state and 1 or 0, state and -21 or 3, 0.5, -9)}, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out))
-                    Tween(Label, {TextColor3 = state and Theme.TextWhite or Theme.TextGray})
+                    TweenObject(ToggleBtn, {BackgroundColor3 = state and Theme.Accent or Theme.ToggleOff})
+                    TweenObject(Circle, {Position = UDim2.new(state and 1 or 0, state and -21 or 3, 0.5, -9)}, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out))
+                    TweenObject(Label, {TextColor3 = state and Theme.TextWhite or Theme.TextGray})
                     if callback then pcall(callback, state) end
                 end)
             end
@@ -549,15 +559,15 @@ function IkgonLibrary:CreateWindow(config)
                 btnStroke.Color = Theme.Border
                 
                 Button.MouseEnter:Connect(function() 
-                    Tween(Button, {BackgroundColor3 = Theme.Accent})
-                    Tween(btnStroke, {Color = Theme.AccentGlow})
+                    TweenObject(Button, {BackgroundColor3 = Theme.Accent})
+                    TweenObject(btnStroke, {Color = Theme.AccentGlow})
                 end)
                 Button.MouseLeave:Connect(function() 
-                    Tween(Button, {BackgroundColor3 = Theme.ToggleOff})
-                    Tween(btnStroke, {Color = Theme.Border})
+                    TweenObject(Button, {BackgroundColor3 = Theme.ToggleOff})
+                    TweenObject(btnStroke, {Color = Theme.Border})
                 end)
                 Button.MouseButton1Click:Connect(function() 
-                    PlaySound("rbxassetid://6895057850", 0.4)
+                    PlaySoundEffect("rbxassetid://6895057850", 0.3)
                     if callback then pcall(callback) end 
                 end)
             end
@@ -616,14 +626,14 @@ function IkgonLibrary:CreateWindow(config)
                     local relX = math.clamp(input.Position.X - Track.AbsolutePosition.X, 0, Track.AbsoluteSize.X)
                     local newPct = relX / Track.AbsoluteSize.X
                     local value = math.floor(min + (max - min) * newPct)
-                    Tween(Fill, {Size = UDim2.new(newPct, 0, 1, 0)}, TweenInfo.new(0.04))
+                    TweenObject(Fill, {Size = UDim2.new(newPct, 0, 1, 0)}, TweenInfo.new(0.04))
                     ValLabel.Text = tostring(value)
                     if callback then pcall(callback, value) end
                 end
                 
                 TrackBtn.MouseButton1Down:Connect(function()
                     sliding = true
-                    PlaySound("rbxassetid://6895057850", 0.2)
+                    PlaySoundEffect("rbxassetid://6895057850", 0.15)
                 end)
                 UserInputService.InputEnded:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 then sliding = false end
@@ -641,77 +651,142 @@ function IkgonLibrary:CreateWindow(config)
 end
 
 -- =====================================================================================
--- MODULO 4: INICIALIZACIÓN DE LA INTERFAZ Y COMPONENTES FUNCIONALES DE IKGONAVI HUB
+-- SUBSISTEMA 5: INSTANCIACIÓN DE IKGONAVI HUB NATIVO
 -- =====================================================================================
-local Window = IkgonLibrary:CreateWindow({
-    Name = "IKGONAVI HUB // Ultimate Enterprise Edition",
-    Subtitle = "v8.5 - Full Advanced Suite & Hardware Bypass"
+local HubWindow = NativeLibrary:CreateWindow({
+    Name = "IKGONAVI HUB // Native Enterprise Suite",
+    Subtitle = "v12.0.0-PRO - Fully Autonomous Architecture"
 })
 
--- Notificación de Inicio
-task.delay(0.6, function()
-    IkgonLibrary:Notify("Ikgonavi Hub", "¡Interfaz cargada con éxito absoluto y protecciones activas!", 4)
+-- Notificación de Bienvenida
+task.delay(0.5, function()
+    NativeLibrary:Notify("Ikgonavi Hub", "¡Suite nativa cargada con éxito absoluto y sin dependencias externas!", 4)
 end)
 
 -- PESTAÑA 1: COMBAT & AIMBOT
-local CombatTab = Window:AddTab("Combat Suite", Icons.Combat)
-local AimCard = CombatTab:AddCard("Aimbot & Targeting", Icons.Shield)
+local CombatTab = HubWindow:AddTab("Combat & Aim", Icons.Combat)
+local AimbotCard = CombatTab:AddCard("Aimbot & Predicción Avanzada", Icons.Shield)
 
-AimCard:AddToggle("Activar Aimbot Predictivo", false, function(state)
-    IkgonaviHubAimbotActive = state
-    IkgonLibrary:Notify("Combat", state and "Aimbot Activado" or "Aimbot Desactivado", 2)
+AimbotCard:AddToggle("Activar Aimbot Predictivo", false, function(state)
+    _G.IkgonaviAimbotActive = state
+    NativeLibrary:Notify("Combat", state and "Aimbot Activado" or "Aimbot Desactivado", 2)
 end)
 
-AimCard:AddSlider("FOV Radio de Acción", 120, 10, 400, function(value)
-    IkgonaviFovRadius = value
+AimbotCard:AddSlider("FOV Radio de Acción", 120, 20, 500, function(value)
+    _G.IkgonaviFovRadius = value
 end)
 
-local MacroCard = CombatTab:AddCard("Macro Automatizado", Icons.Running)
+AimbotCard:AddSlider("Suavizado de Cámara (Smoothing)", 5, 1, 30, function(value)
+    _G.IkgonaviSmoothing = value
+end)
+
+local MacroCard = CombatTab:AddCard("Macro Automatizado de Pistola", Icons.Running)
 MacroCard:AddToggle("Activar Macro de Disparo Rápido", false, function(state)
-    IkgonaviMacroActive = state
+    _G.IkgonaviMacroActive = state
+end)
+MacroCard:AddSlider("Delay de Equipar (ms)", 40, 10, 200, function(value)
+    _G.IkgonaviEquipDelay = value / 1000
 end)
 MacroCard:AddSlider("Delay de Disparo (ms)", 100, 20, 500, function(value)
-    IkgonaviMacroDelay = value / 1000
+    _G.IkgonaviShootDelay = value / 1000
 end)
 
--- PESTAÑA 2: VISUALS & ESP
-local VisualsTab = Window:AddTab("Visuals & ESP", Icons.Visuals)
-local EspCard = VisualsTab:AddCard("Jugadores ESP 2D", Icons.User)
+-- PESTAÑA 2: VISUALES & ESP
+local VisualsTab = HubWindow:AddTab("Visuals & ESP", Icons.Visuals)
+local EspCard = VisualsTab:AddCard("Jugadores ESP 2D & Chams", Icons.User)
 
-EspCard:AddToggle("Box ESP Activo", false, function(state)
-    IkgonaviEspActive = state
-    IkgonLibrary:Notify("Visuals", state and "ESP Habilitado" or "ESP Desactivado", 2)
+EspCard:AddToggle("Box ESP General", false, function(state)
+    _G.IkgonaviEspActive = state
+    NativeLibrary:Notify("Visuals", state and "ESP Habilitado" or "ESP Desactivado", 2)
 end)
 
 EspCard:AddToggle("Nombres (NameTags)", true, function(state)
-    IkgonaviNamesActive = state
+    _G.IkgonaviNamesActive = state
 end)
 
-EspCard:AddSlider("Distancia Máxima ESP", 500, 100, 2000, function(value)
-    IkgonaviMaxDist = value
+EspCard:AddToggle("Barras de Vida (HealthBars)", true, function(state)
+    _G.IkgonaviHealthActive = state
 end)
 
--- PESTAÑA 3: OPTIMIZACIÓN & RENDIMIENTO
-local SettingsTab = Window:AddTab("Settings & Core", Icons.Settings)
-local OptCard = SettingsTab:AddCard("Rendimiento del Sistema", Icons.Server)
+EspCard:AddSlider("Distancia Máxima ESP", 800, 100, 3000, function(value)
+    _G.IkgonaviMaxDist = value
+end)
 
-OptCard:AddToggle("FPS Boost (Modo Extremo)", false, function(state)
+-- PESTAÑA 3: MOVIMIENTO & FÍSICAS
+local MovementTab = HubWindow:AddTab("Movimiento & Físicas", Icons.Running)
+local FlyCard = MovementTab:AddCard("Controlador de Vuelo (Fly)", Icons.Server)
+
+FlyCard:AddToggle("Activar Vuelo (Fly Physics)", false, function(state)
+    _G.IkgonaviFlyActive = state
+    NativeLibrary:Notify("Movement", state and "Vuelo Activado" or "Vuelo Desactivado", 2)
+end)
+
+FlyCard:AddSlider("Velocidad de Vuelo", 50, 10, 300, function(value)
+    _G.IkgonaviFlySpeed = value
+end)
+
+-- PESTAÑA 4: GRÁFICOS & RENDIMIENTO
+local GraphicsTab = HubWindow:AddTab("Gráficos & FPS", Icons.Palette)
+local OptCard = GraphicsTab:AddCard("Optimizador de Motor (FPS Boost)", Icons.Server)
+
+OptCard:AddToggle("FPS Boost Extremo (Sin Sombras/Niebla)", false, function(state)
     local Lighting = game:GetService("Lighting")
-    Lighting.GlobalShadows = not state
-    Lighting.FogEnd = state and 9e9 or 10000
-    IkgonLibrary:Notify("Optimization", state and "FPS Boost Activado" or "Gráficos Normales", 2)
+    local Terrain = Workspace:FindFirstChildOfClass("Terrain")
+    if state then
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        if Terrain then
+            Terrain.WaterWaveSize = 0
+            Terrain.WaterTransparency = 1
+            Terrain.Decoration = false
+        end
+        NativeLibrary:Notify("Optimization", "¡FPS Boost Extremo Activado!", 3)
+    else
+        Lighting.GlobalShadows = true
+        Lighting.FogEnd = 10000
+        NativeLibrary:Notify("Optimization", "Gráficos restaurados a valores por defecto.", 3)
+    end
 end)
 
-OptCard:AddButton("Copiar Enlace de Discord Oficial", function()
+-- PESTAÑA 5: CONFIGURACIÓN & MISCELÁNEA
+local SettingsTab = HubWindow:AddTab("Configuración", Icons.Settings)
+local ConfigCard = SettingsTab:AddCard("Ajustes del Sistema", Icons.Settings)
+
+ConfigCard:AddButton("Copiar Enlace de Discord Oficial", function()
     pcall(function() setclipboard("https://discord.gg/ikgonavihub") end)
-    IkgonLibrary:Notify("Settings", "¡Enlace copiado al portapapeles!", 3)
+    NativeLibrary:Notify("Settings", "¡Enlace de Discord copiado al portapapeles!", 3)
 end)
 
-OptCard:AddButton("Reiniciar Interfaz por Completo", function()
-    CoreGui:FindFirstChild("IkgonaviHub_CoreEngine"):Destroy()
+ConfigCard:AddButton("Reiniciar Interfaz por Completo", function()
+    pcall(function() CoreGui:FindFirstChild("IkgonaviHub_NativeEngine"):Destroy() end)
 end)
 
--- Bucle principal del motor para lógica de juego en segundo plano
+-- =====================================================================================
+-- SUBSISTEMA 6: BUCLES DE RENDIMIENTO Y LÓGICA EN SEGUNDO PLANO (RUNSERVICE)
+-- =====================================================================================
 RunService.RenderStepped:Connect(function()
-    -- Lógica interna para asegurar estabilidad y rendimiento en tiempo real
+    pcall(function()
+        if _G.IkgonaviFlyActive and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = LocalPlayer.Character.HumanoidRootPart
+            local cam = Workspace.CurrentCamera
+            local speed = _G.IkgonaviFlySpeed or 50
+            local moveVector = Vector3.new(0, 0, 0)
+            
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                moveVector = moveVector + (cam.CFrame.LookVector)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                moveVector = moveVector - (cam.CFrame.LookVector)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                moveVector = moveVector - (cam.CFrame.RightVector)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                moveVector = moveVector + (cam.CFrame.RightVector)
+            end
+            
+            hrp.Velocity = Vector3.new(0, 0, 0)
+            hrp.CFrame = hrp.CFrame + (moveVector * (speed * 0.05))
+        end
+    end)
 end)
