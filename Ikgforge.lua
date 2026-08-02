@@ -1,3 +1,6 @@
+-- ==========================================
+-- IKGONAVI HUB - ULTIMATE GLASS EDITION
+-- ==========================================
 local Library = {}
 
 local CoreGui = game:GetService("CoreGui")
@@ -8,41 +11,41 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local Theme = {
-    MainBg = Color3.fromRGB(12, 12, 18),
-    CardBg = Color3.fromRGB(17, 17, 26),
-    CardHover = Color3.fromRGB(22, 22, 34),
-    Accent = Color3.fromRGB(140, 90, 255),
-    AccentGlow = Color3.fromRGB(170, 120, 255),
-    TabActive = Color3.fromRGB(38, 24, 68),
-    TextWhite = Color3.fromRGB(245, 245, 250),
-    TextGray = Color3.fromRGB(130, 130, 155),
-    Border = Color3.fromRGB(48, 38, 78),
-    ToggleOff = Color3.fromRGB(35, 30, 50),
+    MainBg = Color3.fromRGB(13, 13, 20),
+    GlassOverlay = Color3.fromRGB(18, 18, 28),
+    CardBg = Color3.fromRGB(20, 20, 32),
+    CardHover = Color3.fromRGB(26, 26, 42),
+    Accent = Color3.fromRGB(145, 85, 255),
+    AccentGlow = Color3.fromRGB(180, 130, 255),
+    TabActive = Color3.fromRGB(45, 28, 80),
+    TextWhite = Color3.fromRGB(250, 250, 255),
+    TextGray = Color3.fromRGB(135, 135, 160),
+    Border = Color3.fromRGB(55, 42, 88),
+    ToggleOff = Color3.fromRGB(32, 28, 48),
     FontMain = Enum.Font.GothamMedium,
     FontBold = Enum.Font.GothamBold
 }
 
+-- Iconos limpios de alta calidad (Estilo moderno)
 local Icons = {
-    Dashboard = "rbxassetid://6023426915",
-    Combat = "rbxassetid://6035047409",
-    Visuals = "rbxassetid://6028481358",
-    Settings = "rbxassetid://6034287593",
+    Main = "rbxassetid://6023426915",
+    ESP = "rbxassetid://6035047409",
+    Gun = "rbxassetid://6028481358",
+    Farm = "rbxassetid://6034287593",
+    Animations = "rbxassetid://6031302932",
+    Settings = "rbxassetid://6034818372",
     Close = "rbxassetid://6031094678",
-    Warning = "rbxassetid://6034818372",
-    Shield = "rbxassetid://6031302932"
+    Warning = "rbxassetid://6035047409"
 }
 
--- Reproductor de sonido satisfactorio para clics e interacciones
 local function PlaySound(soundId, vol)
     pcall(function()
         local sound = Instance.new("Sound")
-        sound.SoundId = soundId or "rbxassetid://6895057850" -- Sonido limpio tipo click/pop
-        sound.Volume = vol or 0.4
+        sound.SoundId = soundId or "rbxassetid://6895057850"
+        sound.Volume = vol or 0.35
         sound.Parent = CoreGui
         sound:Play()
-        task.delay(1, function()
-            sound:Destroy()
-        end)
+        task.delay(1, function() sound:Destroy() end)
     end)
 end
 
@@ -54,8 +57,8 @@ local function Tween(obj, props, info)
 end
 
 function Library:CreateWindow(config)
-    local windowName = config.Name or "IKGHUB PRO"
-    local subtitleText = config.Subtitle or "Shield Active • Interactive Audio & FX"
+    local windowName = config.Name or "IKGHUB"
+    local subtitleText = config.Subtitle or "PC Edition"
 
     if CoreGui:FindFirstChild("IKGHUB") then
         CoreGui:FindFirstChild("IKGHUB"):Destroy()
@@ -69,7 +72,7 @@ function Library:CreateWindow(config)
     pcall(function() ScreenGui.Parent = CoreGui end)
     if not ScreenGui.Parent then ScreenGui.Parent = PlayerGui end
 
-    -- Sistema de Notificaciones
+    -- Notificaciones
     local NotificationHolder = Instance.new("Frame")
     NotificationHolder.Size = UDim2.new(0, 320, 1, -40)
     NotificationHolder.Position = UDim2.new(1, -340, 0, 20)
@@ -89,14 +92,14 @@ function Library:CreateWindow(config)
         local NotifCard = Instance.new("Frame")
         NotifCard.Size = UDim2.new(1, 0, 0, 75)
         NotifCard.BackgroundColor3 = Theme.CardBg
-        NotifCard.BackgroundTransparency = 0.05
+        NotifCard.BackgroundTransparency = 0.08
         NotifCard.Position = UDim2.new(1, 60, 0, 0)
         NotifCard.Parent = NotificationHolder
         
         Instance.new("UICorner", NotifCard).CornerRadius = UDim.new(0, 12)
         local stroke = Instance.new("UIStroke", NotifCard)
         stroke.Color = Theme.Accent
-        stroke.Transparency = 0.3
+        stroke.Transparency = 0.2
         stroke.Thickness = 1.5
         
         local Icon = Instance.new("ImageLabel")
@@ -139,16 +142,25 @@ function Library:CreateWindow(config)
         end)
     end
 
-    -- Marco Principal
+    -- Marco Principal con efecto Glassmorphism profundo
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Size = UDim2.new(0, 860, 0, 560)
     MainFrame.Position = UDim2.new(0.5, -430, 0.5, -280)
     MainFrame.BackgroundColor3 = Theme.MainBg
-    MainFrame.BackgroundTransparency = 0.04
+    MainFrame.BackgroundTransparency = 0.08
     MainFrame.BorderSizePixel = 0
     MainFrame.Active = true
     MainFrame.Parent = ScreenGui
+
+    -- Desenfoque de fondo simulado / Glass extra
+    local GlassOverlay = Instance.new("Frame")
+    GlassOverlay.Size = UDim2.new(1, 0, 1, 0)
+    GlassOverlay.BackgroundColor3 = Theme.GlassOverlay
+    GlassOverlay.BackgroundTransparency = 0.4
+    GlassOverlay.ZIndex = 0
+    GlassOverlay.Parent = MainFrame
+    Instance.new("UICorner", GlassOverlay).CornerRadius = UDim.new(0, 16)
 
     Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 16)
     local MainStroke = Instance.new("UIStroke", MainFrame)
@@ -159,12 +171,14 @@ function Library:CreateWindow(config)
     local TopBar = Instance.new("Frame")
     TopBar.Size = UDim2.new(1, 0, 0, 65)
     TopBar.BackgroundTransparency = 1
+    TopBar.ZIndex = 2
     TopBar.Parent = MainFrame
 
     local HubTitle = Instance.new("TextLabel")
     HubTitle.Size = UDim2.new(0, 560, 0, 24)
     HubTitle.Position = UDim2.new(0, 24, 0, 14)
     HubTitle.BackgroundTransparency = 1
+    HubTitle.ZIndex = 2
     HubTitle.Text = windowName
     HubTitle.TextColor3 = Theme.TextWhite
     HubTitle.Font = Theme.FontBold
@@ -176,6 +190,7 @@ function Library:CreateWindow(config)
     HubSubtitle.Size = UDim2.new(0, 560, 0, 16)
     HubSubtitle.Position = UDim2.new(0, 24, 0, 38)
     HubSubtitle.BackgroundTransparency = 1
+    HubSubtitle.ZIndex = 2
     HubSubtitle.Text = subtitleText
     HubSubtitle.TextColor3 = Theme.Accent
     HubSubtitle.Font = Theme.FontMain
@@ -188,7 +203,9 @@ function Library:CreateWindow(config)
     CloseBtn.Size = UDim2.new(0, 32, 0, 32)
     CloseBtn.Position = UDim2.new(1, -48, 0.5, -16)
     CloseBtn.BackgroundColor3 = Theme.CardBg
+    CloseBtn.BackgroundTransparency = 0.2
     CloseBtn.AutoButtonColor = false
+    CloseBtn.ZIndex = 2
     CloseBtn.Text = ""
     CloseBtn.Parent = TopBar
     Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 8)
@@ -199,6 +216,7 @@ function Library:CreateWindow(config)
     CloseIcon.Size = UDim2.new(0, 16, 0, 16)
     CloseIcon.Position = UDim2.new(0.5, -8, 0.5, -8)
     CloseIcon.BackgroundTransparency = 1
+    CloseIcon.ZIndex = 2
     CloseIcon.Image = Icons.Close
     CloseIcon.ImageColor3 = Theme.Accent
     CloseIcon.Parent = CloseBtn
@@ -211,11 +229,11 @@ function Library:CreateWindow(config)
     end)
 
     CloseBtn.MouseEnter:Connect(function() 
-        Tween(CloseBtn, {BackgroundColor3 = Color3.fromRGB(60, 30, 90)})
+        Tween(CloseBtn, {BackgroundColor3 = Color3.fromRGB(70, 35, 105), BackgroundTransparency = 0})
         Tween(closeStroke, {Color = Theme.Accent})
     end)
     CloseBtn.MouseLeave:Connect(function() 
-        Tween(CloseBtn, {BackgroundColor3 = Theme.CardBg})
+        Tween(CloseBtn, {BackgroundColor3 = Theme.CardBg, BackgroundTransparency = 0.2})
         Tween(closeStroke, {Color = Theme.Border})
     end)
 
@@ -243,6 +261,7 @@ function Library:CreateWindow(config)
     Sidebar.Size = UDim2.new(0, 200, 1, -85)
     Sidebar.Position = UDim2.new(0, 16, 0, 70)
     Sidebar.BackgroundTransparency = 1
+    Sidebar.ZIndex = 2
     Sidebar.ScrollBarThickness = 0
     Sidebar.Parent = MainFrame
 
@@ -255,6 +274,7 @@ function Library:CreateWindow(config)
     ContentContainer.Size = UDim2.new(1, -236, 1, -85)
     ContentContainer.Position = UDim2.new(0, 224, 0, 70)
     ContentContainer.BackgroundTransparency = 1
+    ContentContainer.ZIndex = 2
     ContentContainer.Parent = MainFrame
 
     local WindowAPI = {}
@@ -267,6 +287,7 @@ function Library:CreateWindow(config)
         TabButton.BackgroundTransparency = 1
         TabButton.Text = ""
         TabButton.AutoButtonColor = false
+        TabButton.ZIndex = 2
         TabButton.Parent = Sidebar
         
         Instance.new("UICorner", TabButton).CornerRadius = UDim.new(0, 10)
@@ -278,7 +299,8 @@ function Library:CreateWindow(config)
         TabIcon.Size = UDim2.new(0, 20, 0, 20)
         TabIcon.Position = UDim2.new(0, 16, 0.5, -10)
         TabIcon.BackgroundTransparency = 1
-        TabIcon.Image = iconId or Icons.Dashboard
+        TabIcon.ZIndex = 2
+        TabIcon.Image = iconId or Icons.Main
         TabIcon.ImageColor3 = Theme.TextGray
         TabIcon.Parent = TabButton
         
@@ -286,6 +308,7 @@ function Library:CreateWindow(config)
         TabLabelText.Size = UDim2.new(1, -48, 1, 0)
         TabLabelText.Position = UDim2.new(0, 46, 0, 0)
         TabLabelText.BackgroundTransparency = 1
+        TabLabelText.ZIndex = 2
         TabLabelText.Text = tabName
         TabLabelText.TextColor3 = Theme.TextGray
         TabLabelText.Font = Theme.FontBold
@@ -296,6 +319,7 @@ function Library:CreateWindow(config)
         local TabPage = Instance.new("ScrollingFrame")
         TabPage.Size = UDim2.new(1, 0, 1, 0)
         TabPage.BackgroundTransparency = 1
+        TabPage.ZIndex = 2
         TabPage.ScrollBarThickness = 3
         TabPage.ScrollBarImageColor3 = Theme.Accent
         TabPage.Visible = false
@@ -304,6 +328,7 @@ function Library:CreateWindow(config)
         local LeftCol = Instance.new("ScrollingFrame")
         LeftCol.Size = UDim2.new(0.5, -10, 1, 0)
         LeftCol.BackgroundTransparency = 1
+        LeftCol.ZIndex = 2
         LeftCol.ScrollBarThickness = 0
         LeftCol.Parent = TabPage
         local LeftLayout = Instance.new("UIListLayout")
@@ -315,6 +340,7 @@ function Library:CreateWindow(config)
         RightCol.Size = UDim2.new(0.5, -10, 1, 0)
         RightCol.Position = UDim2.new(0.5, 10, 0, 0)
         RightCol.BackgroundTransparency = 1
+        RightCol.ZIndex = 2
         RightCol.ScrollBarThickness = 0
         RightCol.Parent = TabPage
         local RightLayout = Instance.new("UIListLayout")
@@ -338,7 +364,7 @@ function Library:CreateWindow(config)
             Tween(TabButton, {BackgroundTransparency = 0})
             Tween(TabLabelText, {TextColor3 = Theme.TextWhite})
             Tween(TabIcon, {ImageColor3 = Theme.Accent})
-            Tween(tabStroke, {Transparency = 0.5})
+            Tween(tabStroke, {Transparency = 0.4})
         end)
         
         TabButton.MouseEnter:Connect(function()
@@ -359,7 +385,7 @@ function Library:CreateWindow(config)
             TabButton.BackgroundTransparency = 0
             TabLabelText.TextColor3 = Theme.TextWhite
             TabIcon.ImageColor3 = Theme.Accent
-            tabStroke.Transparency = 0.5
+            tabStroke.Transparency = 0.4
         end
         
         local TabAPI = {}
@@ -371,7 +397,8 @@ function Library:CreateWindow(config)
             local Card = Instance.new("Frame")
             Card.Size = UDim2.new(1, 0, 0, 45)
             Card.BackgroundColor3 = Theme.CardBg
-            Card.BackgroundTransparency = 0.2
+            Card.BackgroundTransparency = 0.15
+            Card.ZIndex = 2
             Card.Parent = TargetCol
             
             Instance.new("UICorner", Card).CornerRadius = UDim.new(0, 12)
@@ -386,13 +413,15 @@ function Library:CreateWindow(config)
             local Header = Instance.new("Frame")
             Header.Size = UDim2.new(1, 0, 0, 46)
             Header.BackgroundTransparency = 1
+            Header.ZIndex = 2
             Header.Parent = Card
             
             local ServerIcon = Instance.new("ImageLabel")
             ServerIcon.Size = UDim2.new(0, 18, 0, 18)
             ServerIcon.Position = UDim2.new(0, 16, 0.5, -9)
             ServerIcon.BackgroundTransparency = 1
-            ServerIcon.Image = cardIcon or Icons.Shield
+            ServerIcon.ZIndex = 2
+            ServerIcon.Image = cardIcon or Icons.Main
             ServerIcon.ImageColor3 = Theme.Accent
             ServerIcon.Parent = Header
             
@@ -400,6 +429,7 @@ function Library:CreateWindow(config)
             TitleLabel.Size = UDim2.new(1, -48, 1, 0)
             TitleLabel.Position = UDim2.new(0, 44, 0, 0)
             TitleLabel.BackgroundTransparency = 1
+            TitleLabel.ZIndex = 2
             TitleLabel.Text = cardTitle
             TitleLabel.TextColor3 = Theme.TextWhite
             TitleLabel.Font = Theme.FontBold
@@ -418,12 +448,14 @@ function Library:CreateWindow(config)
                 local LblFrame = Instance.new("Frame")
                 LblFrame.Size = UDim2.new(1, 0, 0, 28)
                 LblFrame.BackgroundTransparency = 1
+                LblFrame.ZIndex = 2
                 LblFrame.Parent = Card
                 
                 local Label = Instance.new("TextLabel")
                 Label.Size = UDim2.new(1, -32, 1, 0)
                 Label.Position = UDim2.new(0, 16, 0, 0)
                 Label.BackgroundTransparency = 1
+                Label.ZIndex = 2
                 Label.Text = text
                 Label.TextColor3 = Theme.TextGray
                 Label.Font = Theme.FontMain
@@ -437,17 +469,20 @@ function Library:CreateWindow(config)
                 local BtnFrame = Instance.new("Frame")
                 BtnFrame.Size = UDim2.new(1, 0, 0, 42)
                 BtnFrame.BackgroundTransparency = 1
+                BtnFrame.ZIndex = 2
                 BtnFrame.Parent = Card
                 
                 local Button = Instance.new("TextButton")
                 Button.Size = UDim2.new(1, -32, 0, 32)
                 Button.Position = UDim2.new(0, 16, 0.5, -16)
                 Button.BackgroundColor3 = Theme.ToggleOff
+                Button.BackgroundTransparency = 0.1
                 Button.Text = text
                 Button.TextColor3 = Theme.TextWhite
                 Button.Font = Theme.FontBold
                 Button.TextSize = 12
                 Button.AutoButtonColor = false
+                Button.ZIndex = 2
                 Button.Parent = BtnFrame
                 Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 8)
                 local btnStroke = Instance.new("UIStroke", Button)
@@ -475,12 +510,14 @@ function Library:CreateWindow(config)
                 local ToggleFrame = Instance.new("Frame")
                 ToggleFrame.Size = UDim2.new(1, 0, 0, 42)
                 ToggleFrame.BackgroundTransparency = 1
+                ToggleFrame.ZIndex = 2
                 ToggleFrame.Parent = Card
                 
                 local Label = Instance.new("TextLabel")
                 Label.Size = UDim2.new(1, -70, 1, 0)
                 Label.Position = UDim2.new(0, 16, 0, 0)
                 Label.BackgroundTransparency = 1
+                Label.ZIndex = 2
                 Label.Text = text
                 Label.TextColor3 = default and Theme.TextWhite or Theme.TextGray
                 Label.Font = Theme.FontMain
@@ -494,6 +531,7 @@ function Library:CreateWindow(config)
                 ToggleBtn.BackgroundColor3 = default and Theme.Accent or Theme.ToggleOff
                 ToggleBtn.Text = ""
                 ToggleBtn.AutoButtonColor = false
+                ToggleBtn.ZIndex = 2
                 ToggleBtn.Parent = ToggleFrame
                 Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
                 local togStroke = Instance.new("UIStroke", ToggleBtn)
@@ -503,6 +541,7 @@ function Library:CreateWindow(config)
                 Circle.Size = UDim2.new(0, 18, 0, 18)
                 Circle.Position = UDim2.new(default and 1 or 0, default and -21 or 3, 0.5, -9)
                 Circle.BackgroundColor3 = Theme.TextWhite
+                Circle.ZIndex = 2
                 Circle.Parent = ToggleBtn
                 Instance.new("UICorner", Circle).CornerRadius = UDim.new(1, 0)
                 
@@ -521,12 +560,14 @@ function Library:CreateWindow(config)
                 local SliderFrame = Instance.new("Frame")
                 SliderFrame.Size = UDim2.new(1, 0, 0, 56)
                 SliderFrame.BackgroundTransparency = 1
+                SliderFrame.ZIndex = 2
                 SliderFrame.Parent = Card
                 
                 local Label = Instance.new("TextLabel")
                 Label.Size = UDim2.new(1, -50, 0, 22)
                 Label.Position = UDim2.new(0, 16, 0, 4)
                 Label.BackgroundTransparency = 1
+                Label.ZIndex = 2
                 Label.Text = text
                 Label.TextColor3 = Theme.TextGray
                 Label.Font = Theme.FontMain
@@ -538,6 +579,7 @@ function Library:CreateWindow(config)
                 ValLabel.Size = UDim2.new(0, 45, 0, 22)
                 ValLabel.Position = UDim2.new(1, -60, 0, 4)
                 ValLabel.BackgroundTransparency = 1
+                ValLabel.ZIndex = 2
                 ValLabel.Text = tostring(default)
                 ValLabel.TextColor3 = Theme.TextWhite
                 ValLabel.Font = Theme.FontBold
@@ -549,6 +591,7 @@ function Library:CreateWindow(config)
                 TrackBtn.Size = UDim2.new(1, -32, 0, 22)
                 TrackBtn.Position = UDim2.new(0, 16, 0, 28)
                 TrackBtn.BackgroundTransparency = 1
+                TrackBtn.ZIndex = 2
                 TrackBtn.Text = ""
                 TrackBtn.Parent = SliderFrame
                 
@@ -556,6 +599,7 @@ function Library:CreateWindow(config)
                 Track.Size = UDim2.new(1, 0, 0, 6)
                 Track.Position = UDim2.new(0, 0, 0.5, -3)
                 Track.BackgroundColor3 = Theme.ToggleOff
+                Track.ZIndex = 2
                 Track.Parent = TrackBtn
                 Instance.new("UICorner", Track).CornerRadius = UDim.new(1, 0)
                 
@@ -563,6 +607,7 @@ function Library:CreateWindow(config)
                 local Fill = Instance.new("Frame")
                 Fill.Size = UDim2.new(pct, 0, 1, 0)
                 Fill.BackgroundColor3 = Theme.Accent
+                Fill.ZIndex = 2
                 Fill.Parent = Track
                 Instance.new("UICorner", Fill).CornerRadius = UDim.new(1, 0)
                 
@@ -570,6 +615,7 @@ function Library:CreateWindow(config)
                 Handle.Size = UDim2.new(0, 12, 0, 16)
                 Handle.Position = UDim2.new(1, -6, 0.5, -8)
                 Handle.BackgroundColor3 = Theme.TextWhite
+                Handle.ZIndex = 2
                 Handle.Parent = Fill
                 Instance.new("UICorner", Handle).CornerRadius = UDim.new(0, 4)
                 
@@ -595,16 +641,126 @@ function Library:CreateWindow(config)
                 end)
             end
 
+            function ElementsAPI:AddDropdown(text, options, default, callback)
+                local DropdownFrame = Instance.new("Frame")
+                DropdownFrame.Size = UDim2.new(1, 0, 0, 42)
+                DropdownFrame.BackgroundTransparency = 1
+                DropdownFrame.ZIndex = 5
+                DropdownFrame.Parent = Card
+                
+                local Label = Instance.new("TextLabel")
+                Label.Size = UDim2.new(1, -140, 1, 0)
+                Label.Position = UDim2.new(0, 16, 0, 0)
+                Label.BackgroundTransparency = 1
+                Label.ZIndex = 5
+                Label.Text = text
+                Label.TextColor3 = Theme.TextGray
+                Label.Font = Theme.FontMain
+                Label.TextSize = 12
+                Label.TextXAlignment = Enum.TextXAlignment.Left
+                Label.Parent = DropdownFrame
+                
+                local DropBtn = Instance.new("TextButton")
+                DropBtn.Size = UDim2.new(0, 120, 0, 28)
+                DropBtn.Position = UDim2.new(1, -132, 0.5, -14)
+                DropBtn.BackgroundColor3 = Theme.ToggleOff
+                DropBtn.Text = tostring(default or options[1] or "")
+                DropBtn.TextColor3 = Theme.TextWhite
+                DropBtn.Font = Theme.FontBold
+                DropBtn.TextSize = 11
+                DropBtn.AutoButtonColor = false
+                DropBtn.ZIndex = 5
+                DropBtn.Parent = DropdownFrame
+                Instance.new("UICorner", DropBtn).CornerRadius = UDim.new(0, 6)
+                local dropStroke = Instance.new("UIStroke", DropBtn)
+                dropStroke.Color = Theme.Border
+                
+                local isOpen = false
+                local ListFrame = Instance.new("ScrollingFrame")
+                ListFrame.Size = UDim2.new(1, -32, 0, 0)
+                ListFrame.Position = UDim2.new(0, 16, 0, 44)
+                ListFrame.BackgroundColor3 = Theme.CardBg
+                ListFrame.BackgroundTransparency = 0.05
+                ListFrame.BorderSizePixel = 0
+                ListFrame.ZIndex = 10
+                ListFrame.ScrollBarThickness = 2
+                ListFrame.ScrollBarImageColor3 = Theme.Accent
+                ListFrame.Visible = false
+                ListFrame.Parent = DropdownFrame
+                Instance.new("UICorner", ListFrame).CornerRadius = UDim.new(0, 8)
+                local listStroke = Instance.new("UIStroke", ListFrame)
+                listStroke.Color = Theme.Accent
+                listStroke.Transparency = 0.5
+                
+                local ListLayout = Instance.new("UIListLayout")
+                ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+                ListLayout.Padding = UDim.new(0, 4)
+                ListLayout.Parent = ListFrame
+                
+                ListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                    if isOpen then
+                        ListFrame.Size = UDim2.new(1, -32, 0, math.clamp(ListLayout.AbsoluteContentSize.Y + 8, 0, 130))
+                        DropdownFrame.Size = UDim2.new(1, 0, 0, 42 + ListFrame.AbsoluteSize.Y + 12)
+                    end
+                end)
+                
+                local function toggleDropdown()
+                    PlaySound("rbxassetid://6895057850", 0.4)
+                    isOpen = not isOpen
+                    ListFrame.Visible = isOpen
+                    if isOpen then
+                        ListFrame.Size = UDim2.new(1, -32, 0, math.clamp(ListLayout.AbsoluteContentSize.Y + 8, 0, 130))
+                        DropdownFrame.Size = UDim2.new(1, 0, 0, 42 + ListFrame.AbsoluteSize.Y + 12)
+                    else
+                        ListFrame.Size = UDim2.new(1, -32, 0, 0)
+                        DropdownFrame.Size = UDim2.new(1, 0, 0, 42)
+                    end
+                end
+                
+                DropBtn.MouseButton1Click:Connect(toggleDropdown)
+                
+                for _, opt in ipairs(options) do
+                    local OptBtn = Instance.new("TextButton")
+                    OptBtn.Size = UDim2.new(1, 0, 0, 26)
+                    OptBtn.BackgroundColor3 = Theme.ToggleOff
+                    OptBtn.BackgroundTransparency = 0.5
+                    OptBtn.Text = tostring(opt)
+                    OptBtn.TextColor3 = Theme.TextGray
+                    OptBtn.Font = Theme.FontMain
+                    OptBtn.TextSize = 11
+                    OptBtn.AutoButtonColor = false
+                    OptBtn.ZIndex = 11
+                    OptBtn.Parent = ListFrame
+                    Instance.new("UICorner", OptBtn).CornerRadius = UDim.new(0, 4)
+                    
+                    OptBtn.MouseEnter:Connect(function()
+                        Tween(OptBtn, {BackgroundTransparency = 0, TextColor3 = Theme.TextWhite})
+                    end)
+                    OptBtn.MouseLeave:Connect(function()
+                        Tween(OptBtn, {BackgroundTransparency = 0.5, TextColor3 = Theme.TextGray})
+                    end)
+                    
+                    OptBtn.MouseButton1Click:Connect(function()
+                        PlaySound("rbxassetid://6895057850", 0.4)
+                        DropBtn.Text = tostring(opt)
+                        toggleDropdown()
+                        if callback then pcall(callback, opt) end
+                    end)
+                end
+            end
+
             function ElementsAPI:AddKeybind(text, defaultKey, callback)
                 local KeybindFrame = Instance.new("Frame")
                 KeybindFrame.Size = UDim2.new(1, 0, 0, 42)
                 KeybindFrame.BackgroundTransparency = 1
+                KeybindFrame.ZIndex = 2
                 KeybindFrame.Parent = Card
                 
                 local Label = Instance.new("TextLabel")
                 Label.Size = UDim2.new(1, -95, 1, 0)
                 Label.Position = UDim2.new(0, 16, 0, 0)
                 Label.BackgroundTransparency = 1
+                Label.ZIndex = 2
                 Label.Text = text
                 Label.TextColor3 = Theme.TextGray
                 Label.Font = Theme.FontMain
@@ -621,6 +777,7 @@ function Library:CreateWindow(config)
                 KeyBtn.Font = Theme.FontBold
                 KeyBtn.TextSize = 11
                 KeyBtn.AutoButtonColor = false
+                KeyBtn.ZIndex = 2
                 KeyBtn.Parent = KeybindFrame
                 Instance.new("UICorner", KeyBtn).CornerRadius = UDim.new(0, 8)
                 local kbStroke = Instance.new("UIStroke", KeyBtn)
