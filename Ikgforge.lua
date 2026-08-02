@@ -18,7 +18,6 @@ local Theme = {
     TextGray = Color3.fromRGB(130, 130, 155),
     Border = Color3.fromRGB(48, 38, 78),
     ToggleOff = Color3.fromRGB(35, 30, 50),
-    SuccessGreen = Color3.fromRGB(50, 215, 115),
     FontMain = Enum.Font.GothamMedium,
     FontBold = Enum.Font.GothamBold
 }
@@ -33,6 +32,20 @@ local Icons = {
     Shield = "rbxassetid://6031302932"
 }
 
+-- Reproductor de sonido satisfactorio para clics e interacciones
+local function PlaySound(soundId, vol)
+    pcall(function()
+        local sound = Instance.new("Sound")
+        sound.SoundId = soundId or "rbxassetid://6895057850" -- Sonido limpio tipo click/pop
+        sound.Volume = vol or 0.4
+        sound.Parent = CoreGui
+        sound:Play()
+        task.delay(1, function()
+            sound:Destroy()
+        end)
+    end)
+end
+
 local function Tween(obj, props, info)
     local tweenInfo = info or TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
     local tween = TweenService:Create(obj, tweenInfo, props)
@@ -42,7 +55,7 @@ end
 
 function Library:CreateWindow(config)
     local windowName = config.Name or "IKGHUB PRO"
-    local subtitleText = config.Subtitle or "Shield Active • Ultra Modern Engine"
+    local subtitleText = config.Subtitle or "Shield Active • Interactive Audio & FX"
 
     if CoreGui:FindFirstChild("IKGHUB") then
         CoreGui:FindFirstChild("IKGHUB"):Destroy()
@@ -56,7 +69,7 @@ function Library:CreateWindow(config)
     pcall(function() ScreenGui.Parent = CoreGui end)
     if not ScreenGui.Parent then ScreenGui.Parent = PlayerGui end
 
-    -- Sistema de Notificaciones Pro
+    -- Sistema de Notificaciones
     local NotificationHolder = Instance.new("Frame")
     NotificationHolder.Size = UDim2.new(0, 320, 1, -40)
     NotificationHolder.Position = UDim2.new(1, -340, 0, 20)
@@ -71,6 +84,8 @@ function Library:CreateWindow(config)
 
     function Library:Notify(title, message, duration)
         duration = duration or 3
+        PlaySound("rbxassetid://6895057850", 0.3)
+        
         local NotifCard = Instance.new("Frame")
         NotifCard.Size = UDim2.new(1, 0, 0, 75)
         NotifCard.BackgroundColor3 = Theme.CardBg
@@ -124,7 +139,7 @@ function Library:CreateWindow(config)
         end)
     end
 
-    -- Marco Principal con estética Glassmorphism / Pro
+    -- Marco Principal
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Size = UDim2.new(0, 860, 0, 560)
@@ -140,7 +155,7 @@ function Library:CreateWindow(config)
     MainStroke.Color = Theme.Border
     MainStroke.Thickness = 1.5
 
-    -- Barra Superior Elegante
+    -- Barra Superior
     local TopBar = Instance.new("Frame")
     TopBar.Size = UDim2.new(1, 0, 0, 65)
     TopBar.BackgroundTransparency = 1
@@ -189,6 +204,7 @@ function Library:CreateWindow(config)
     CloseIcon.Parent = CloseBtn
 
     CloseBtn.MouseButton1Click:Connect(function()
+        PlaySound("rbxassetid://6895057850", 0.5)
         Tween(MainFrame, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In))
         task.wait(0.3)
         ScreenGui:Destroy()
@@ -203,7 +219,7 @@ function Library:CreateWindow(config)
         Tween(closeStroke, {Color = Theme.Border})
     end)
 
-    -- Arrastrar ventana fluido
+    -- Arrastrar ventana
     local dragging, dragStart, startPos
     TopBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -222,7 +238,7 @@ function Library:CreateWindow(config)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
     end)
 
-    -- Sidebar y Contenedores modernos
+    -- Sidebar y Contenedores
     local Sidebar = Instance.new("ScrollingFrame")
     Sidebar.Size = UDim2.new(0, 200, 1, -85)
     Sidebar.Position = UDim2.new(0, 16, 0, 70)
@@ -310,6 +326,7 @@ function Library:CreateWindow(config)
         table.insert(TabsList, {Btn = TabButton, Icon = TabIcon, Label = TabLabelText, Page = TabPage, Stroke = tabStroke})
         
         TabButton.MouseButton1Click:Connect(function()
+            PlaySound("rbxassetid://6895057850", 0.4)
             for _, t in ipairs(TabsList) do
                 t.Page.Visible = false
                 Tween(t.Btn, {BackgroundTransparency = 1})
@@ -445,6 +462,7 @@ function Library:CreateWindow(config)
                     Tween(btnStroke, {Color = Theme.Border})
                 end)
                 Button.MouseButton1Down:Connect(function()
+                    PlaySound("rbxassetid://6895057850", 0.5)
                     Tween(Button, {Size = UDim2.new(1, -36, 0, 28), Position = UDim2.new(0, 18, 0.5, -14)})
                 end)
                 Button.MouseButton1Up:Connect(function()
@@ -490,6 +508,7 @@ function Library:CreateWindow(config)
                 
                 local state = default
                 ToggleBtn.MouseButton1Click:Connect(function()
+                    PlaySound("rbxassetid://6895057850", 0.5)
                     state = not state
                     Tween(ToggleBtn, {BackgroundColor3 = state and Theme.Accent or Theme.ToggleOff})
                     Tween(Circle, {Position = UDim2.new(state and 1 or 0, state and -21 or 3, 0.5, -9)}, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out))
@@ -564,7 +583,10 @@ function Library:CreateWindow(config)
                     if callback then pcall(callback, value) end
                 end
                 
-                TrackBtn.MouseButton1Down:Connect(function() sliding = true end)
+                TrackBtn.MouseButton1Down:Connect(function()
+                    sliding = true
+                    PlaySound("rbxassetid://6895057850", 0.2)
+                end)
                 UserInputService.InputEnded:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 then sliding = false end
                 end)
@@ -608,6 +630,7 @@ function Library:CreateWindow(config)
                 local listening = false
                 
                 KeyBtn.MouseButton1Click:Connect(function()
+                    PlaySound("rbxassetid://6895057850", 0.5)
                     if listening then return end
                     listening = true
                     KeyBtn.Text = "..."
