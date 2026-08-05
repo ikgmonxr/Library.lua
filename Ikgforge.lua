@@ -21,7 +21,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Anti-Freeze Extremo Activo"))
+    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Clipboard API Activo"))
     .catch((err) => console.error("❌ Error DB:", err));
 
 const scriptSchema = new mongoose.Schema({
@@ -80,7 +80,7 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Ikgonavi Hub | Ultra Blindado</title>
+            <title>Ikgonavi Hub | Anti-Lag Absoluto</title>
             <script src="https://cdn.tailwindcss.com"></script>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -117,8 +117,14 @@ app.get('/', (req, res) => {
                     
                     <div class="flex flex-col gap-3">
                         <input type="text" id="scriptName" placeholder="Nombre del Script (Ej. Silent Aim)" class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-sm text-white outline-none focus:border-indigo-500">
-                        <!-- ATRIBUTOS ANTI-CONGELAMIENTO AGREGADOS -->
-                        <textarea id="scriptCode" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Pega tu código Lua aquí..." class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-indigo-300 font-mono h-48 resize-none outline-none focus:border-indigo-500"></textarea>
+                        
+                        <div class="flex justify-between items-center">
+                            <label class="text-[11px] text-zinc-400">Código Lua:</label>
+                            <button onclick="pasteLargeCode()" type="button" class="text-[11px] bg-indigo-950 hover:bg-indigo-900 text-indigo-300 px-2.5 py-1 rounded-lg border border-indigo-800/50 font-semibold transition">📋 Pegar Código Grande</button>
+                        </div>
+
+                        <textarea id="scriptCode" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Pega tu código aquí o usa el botón de arriba..." class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-indigo-300 font-mono h-48 resize-none outline-none focus:border-indigo-500"></textarea>
+                        
                         <button id="actionBtn" onclick="saveScript()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">Ofuscar con Base64</button>
                         <button id="cancelBtn" onclick="resetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold py-2 rounded-xl text-xs transition">Cancelar Edición</button>
                     </div>
@@ -182,6 +188,17 @@ app.get('/', (req, res) => {
                         \`;
                         container.appendChild(card);
                     });
+                }
+
+                // Función ultra rápida para pegar textos masivos sin que el navegador los bloquee
+                async function pasteLargeCode() {
+                    try {
+                        const text = await navigator.clipboard.readText();
+                        if(!text) return alert('El portapapeles está vacío.');
+                        document.getElementById('scriptCode').value = text;
+                    } catch (err) {
+                        alert('Tu navegador bloqueó el acceso directo. Haz clic dentro del cuadro de texto y presiona Ctrl + V normalmente.');
+                    }
                 }
 
                 async function saveScript() {
@@ -362,5 +379,5 @@ app.get('/api/script/:id', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🛡️ Panel Pro Ultra Blindado activo en el puerto ${PORT}`);
+    console.log(`🛡️ Panel Pro Clipboard API activo en el puerto ${PORT}`);
 });
