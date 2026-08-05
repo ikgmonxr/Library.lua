@@ -21,7 +21,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Base64 Blindado Activo"))
+    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Base64 Automático Activo"))
     .catch((err) => console.error("❌ Error DB:", err));
 
 const scriptSchema = new mongoose.Schema({
@@ -49,7 +49,7 @@ function nativeObfuscate(rawCode) {
     }
 
     const obfuscatedTemplate = `
--- [IKGONAVI HUB PRO - BASE64 BLINDADO]
+-- [IKGONAVI HUB PRO - BASE64 AUTOMÁTICO]
 ${junkNoise}
 local ${randVar1} = "${encoded}"
 local function ${randVar3}(data)
@@ -84,7 +84,7 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Ikgonavi Hub | Base64 Blindado</title>
+            <title>Ikgonavi Hub | Base64 Automático</title>
             <script src="https://cdn.tailwindcss.com"></script>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -102,7 +102,7 @@ app.get('/', (req, res) => {
                     <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl text-white">⚡</div>
                     <div>
                         <h1 class="font-bold text-lg text-white">Ikgonavi Hub Pro</h1>
-                        <p class="text-xs text-indigo-400">Sistema Base64 Blindado Activo</p>
+                        <p class="text-xs text-indigo-400">Base64 Automático Activo</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap justify-end">
@@ -138,7 +138,7 @@ app.get('/', (req, res) => {
                             <label class="text-xs text-zinc-400">Loadstring Directo:</label>
                             <button onclick="copyResultOutput()" class="text-[10px] text-indigo-400 hover:text-indigo-300 underline">Copiar</button>
                         </div>
-                        <input type="text" id="resultOutput" readonly placeholder="Aparecerá aquí listo para usar..." class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-emerald-400 font-mono outline-none w-full">
+                        <textarea id="resultOutput" readonly placeholder="Aparecerá aquí listo para usar..." class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-emerald-400 font-mono h-20 resize-none outline-none w-full"></textarea>
                     </div>
                 </div>
 
@@ -188,9 +188,9 @@ app.get('/', (req, res) => {
                                     <span class="text-[10px] text-zinc-500 font-mono self-center">ID: \${s.id}</span>
                                 </div>
                             </div>
-                            <div class="flex gap-2 mt-1">
-                                <input type="text" readonly value='\${loadstring}' class="bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-xs text-zinc-400 font-mono w-full outline-none">
-                                <button onclick="navigator.clipboard.writeText(\\\`\${loadstring}\\\`); alert('¡Loadstring copiado!');" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-semibold">Copiar</button>
+                            <div class="flex flex-col gap-2 mt-1">
+                                <textarea readonly class="bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-xs text-zinc-400 font-mono h-16 resize-none outline-none w-full">\${loadstring}</textarea>
+                                <button onclick="navigator.clipboard.writeText(\\\`\${loadstring}\\\`); alert('¡Loadstring copiado!');" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-semibold self-end">Copiar Loadstring</button>
                             </div>
                         \`;
                         container.appendChild(card);
@@ -254,7 +254,7 @@ app.get('/', (req, res) => {
                                 document.getElementById('scriptCode').value = '';
                                 document.getElementById('scriptName').value = '';
                                 loadScripts();
-                                alert('¡Código ofuscado con Base64 con éxito! Loadstring listo para usar.');
+                                alert('¡Código convertido a Base64 con éxito! Loadstring listo para usar.');
                             }
                         } catch(e) { alert('Error de conexión.'); }
                     }
@@ -395,5 +395,5 @@ app.get('/api/script/:id', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🛡️ Panel Pro Base64 Blindado en el puerto ${PORT}`);
+    console.log(`🛡️ Panel Pro Base64 Automático Activo en el puerto ${PORT}`);
 });
