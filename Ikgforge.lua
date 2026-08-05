@@ -21,7 +21,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Base64 Activo"))
+    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Base64 Blindado Activo"))
     .catch((err) => console.error("❌ Error DB:", err));
 
 const scriptSchema = new mongoose.Schema({
@@ -42,22 +42,26 @@ function nativeObfuscate(rawCode) {
     const randVar4 = crypto.randomBytes(3).toString('hex');
 
     let junkNoise = "";
-    for (let i = 1; i <= 25; i++) {
+    for (let i = 1; i <= 30; i++) {
         const jKey = crypto.randomBytes(3).toString('hex');
         const jVal = crypto.randomBytes(6).toString('hex');
         junkNoise += `local _b64_${jKey}_${i} = "${jVal}"\n`;
     }
 
     const obfuscatedTemplate = `
--- [CÓDIGO OFUSCADO CON BASE64 - LISTO PARA USAR]
+-- [IKGONAVI HUB PRO - BASE64 BLINDADO]
 ${junkNoise}
 local ${randVar1} = "${encoded}"
-local ${randVar2} = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 local function ${randVar3}(data)
+    if base64_decode then return base64_decode(data) end
+    if crypt and crypt.base64 and crypt.base64.decode then return crypt.base64.decode(data) end
+    if syn and syn.crypt and syn.crypt.base64 and syn.crypt.base64.decode then return syn.crypt.base64.decode(data) end
+    
+    local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
     data = string.gsub(data, '[^%w%+%/%=]', '')
     return (data:gsub('.', function(x)
         if (x == '=') then return '' end
-        local r, f = '', (${randVar2}:find(x) - 1)
+        local r, f = '', (b:find(x) - 1)
         for i = 6, 1, -1 do r = r .. (f % 2^i - f % 2^(i-1) > 0 and '1' or '0') end
         return r
     end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
@@ -80,7 +84,7 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Ikgonavi Hub | Base64 Instantáneo</title>
+            <title>Ikgonavi Hub | Base64 Blindado</title>
             <script src="https://cdn.tailwindcss.com"></script>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -98,7 +102,7 @@ app.get('/', (req, res) => {
                     <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl text-white">⚡</div>
                     <div>
                         <h1 class="font-bold text-lg text-white">Ikgonavi Hub Pro</h1>
-                        <p class="text-xs text-indigo-400">Sistema Anti-Dump Extremo Activo</p>
+                        <p class="text-xs text-indigo-400">Sistema Base64 Blindado Activo</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap justify-end">
@@ -285,7 +289,6 @@ app.get('/', (req, res) => {
                     document.getElementById('scriptCode').value = script.rawCode || script.code || '';
                     document.getElementById('scriptName').value = script.name === 'null' ? '' : script.name;
                     
-                    // Muestra también el loadstring actual en el cuadro de abajo al empezar a editar
                     const loadstring = \`loadstring(game:HttpGet("\${window.location.origin}/api/script/\${script.id}"))()\`;
                     document.getElementById('resultOutput').value = loadstring;
 
@@ -392,5 +395,5 @@ app.get('/api/script/:id', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🛡️ Panel Pro Base64 Activo en el puerto ${PORT}`);
+    console.log(`🛡️ Panel Pro Base64 Blindado en el puerto ${PORT}`);
 });
