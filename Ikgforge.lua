@@ -21,7 +21,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Clipboard API Activo"))
+    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Base64 Activo"))
     .catch((err) => console.error("❌ Error DB:", err));
 
 const scriptSchema = new mongoose.Schema({
@@ -80,7 +80,7 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Ikgonavi Hub | Anti-Lag Absoluto</title>
+            <title>Ikgonavi Hub | Base64 Instantáneo</title>
             <script src="https://cdn.tailwindcss.com"></script>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -123,15 +123,18 @@ app.get('/', (req, res) => {
                             <button onclick="pasteLargeCode()" type="button" class="text-[11px] bg-indigo-950 hover:bg-indigo-900 text-indigo-300 px-2.5 py-1 rounded-lg border border-indigo-800/50 font-semibold transition">📋 Pegar Código Grande</button>
                         </div>
 
-                        <textarea id="scriptCode" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Pega tu código aquí o usa el botón de arriba..." class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-indigo-300 font-mono h-48 resize-none outline-none focus:border-indigo-500"></textarea>
+                        <textarea id="scriptCode" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Pega tu código aquí..." class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-indigo-300 font-mono h-48 resize-none outline-none focus:border-indigo-500"></textarea>
                         
                         <button id="actionBtn" onclick="saveScript()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">Ofuscar con Base64</button>
                         <button id="cancelBtn" onclick="resetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold py-2 rounded-xl text-xs transition">Cancelar Edición</button>
                     </div>
 
-                    <div class="mt-2">
-                        <label class="text-xs text-zinc-400 mb-1 block">Loadstring Directo:</label>
-                        <input type="text" id="resultOutput" readonly placeholder="Aparecerá aquí..." class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-emerald-400 font-mono outline-none w-full">
+                    <div class="mt-2 flex flex-col gap-1.5">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs text-zinc-400">Loadstring Directo:</label>
+                            <button onclick="copyResultOutput()" class="text-[10px] text-indigo-400 hover:text-indigo-300 underline">Copiar</button>
+                        </div>
+                        <input type="text" id="resultOutput" readonly placeholder="Aparecerá aquí listo para usar..." class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-emerald-400 font-mono outline-none w-full">
                     </div>
                 </div>
 
@@ -183,22 +186,28 @@ app.get('/', (req, res) => {
                             </div>
                             <div class="flex gap-2 mt-1">
                                 <input type="text" readonly value='\${loadstring}' class="bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-xs text-zinc-400 font-mono w-full outline-none">
-                                <button onclick="navigator.clipboard.writeText(\\\`\${loadstring}\\\`); alert('¡Copiado!');" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-semibold">Copiar</button>
+                                <button onclick="navigator.clipboard.writeText(\\\`\${loadstring}\\\`); alert('¡Loadstring copiado!');" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-semibold">Copiar</button>
                             </div>
                         \`;
                         container.appendChild(card);
                     });
                 }
 
-                // Función ultra rápida para pegar textos masivos sin que el navegador los bloquee
                 async function pasteLargeCode() {
                     try {
                         const text = await navigator.clipboard.readText();
                         if(!text) return alert('El portapapeles está vacío.');
                         document.getElementById('scriptCode').value = text;
                     } catch (err) {
-                        alert('Tu navegador bloqueó el acceso directo. Haz clic dentro del cuadro de texto y presiona Ctrl + V normalmente.');
+                        alert('Haz clic dentro del cuadro de texto y presiona Ctrl + V.');
                     }
+                }
+
+                function copyResultOutput() {
+                    const val = document.getElementById('resultOutput').value;
+                    if(!val) return alert('No hay ningún loadstring generado aún.');
+                    navigator.clipboard.writeText(val);
+                    alert('¡Loadstring copiado al portapapeles con éxito!');
                 }
 
                 async function saveScript() {
@@ -219,8 +228,9 @@ app.get('/', (req, res) => {
                             });
                             const data = await res.json();
                             if(data.success) {
-                                alert('¡Código ofuscado con Base64 con éxito! Actualizado correctamente.');
-                                resetForm();
+                                const loadstring = \`loadstring(game:HttpGet("\${window.location.origin}/api/script/\${editingId}"))()\`;
+                                document.getElementById('resultOutput').value = loadstring;
+                                alert('¡Código ofuscado con Base64 y actualizado con éxito! Listo para usar.');
                                 loadScripts();
                             } else {
                                 alert('Error al actualizar.');
@@ -249,23 +259,21 @@ app.get('/', (req, res) => {
                 }
 
                 function clearApiConfigs() {
-                    if(!confirm('🧹 ¿Deseas limpiar todas las claves, tokens y configuraciones de API almacenadas localmente?')) return;
+                    if(!confirm('🧹 ¿Deseas limpiar todas las configuraciones locales?')) return;
                     localStorage.clear();
                     sessionStorage.clear();
-                    alert('✨ Configuraciones de API locales borradas correctamente.');
+                    alert('✨ Datos locales borrados.');
                 }
 
                 async function wipeAllDatabase() {
-                    if(!confirm('⚠️ ¿ESTÁS SEGURO? Esto borrará ABSOLUTAMENTE TODOS tus scripts para empezar desde cero.')) return;
+                    if(!confirm('⚠️ ¿ESTÁS SEGURO? Esto borrará todos tus scripts.')) return;
                     try {
                         const res = await fetch('/api/scripts/wipe', { method: 'DELETE' });
                         const data = await res.json();
                         if(data.success) {
-                            alert('🗑️ Base de datos limpiada por completo.');
+                            alert('🗑️ Base de datos limpiada.');
                             resetForm();
                             loadScripts();
-                        } else {
-                            alert('Error al vaciar la base de datos.');
                         }
                     } catch(e) { alert('Error de conexión.'); }
                 }
@@ -276,6 +284,11 @@ app.get('/', (req, res) => {
                     editingId = script.id;
                     document.getElementById('scriptCode').value = script.rawCode || script.code || '';
                     document.getElementById('scriptName').value = script.name === 'null' ? '' : script.name;
+                    
+                    // Muestra también el loadstring actual en el cuadro de abajo al empezar a editar
+                    const loadstring = \`loadstring(game:HttpGet("\${window.location.origin}/api/script/\${script.id}"))()\`;
+                    document.getElementById('resultOutput').value = loadstring;
+
                     document.getElementById('panelTitle').innerText = 'Editar Script';
                     document.getElementById('actionBtn').innerText = 'Guardar Cambios';
                     document.getElementById('cancelBtn').classList.remove('hidden');
@@ -379,5 +392,5 @@ app.get('/api/script/:id', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🛡️ Panel Pro Clipboard API activo en el puerto ${PORT}`);
+    console.log(`🛡️ Panel Pro Base64 Activo en el puerto ${PORT}`);
 });
