@@ -21,13 +21,14 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Base64 Obfuscator Activo"))
+    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Anti-Freeze Activo"))
     .catch((err) => console.error("❌ Error DB:", err));
 
 const scriptSchema = new mongoose.Schema({
     id: { type: String, default: () => crypto.randomBytes(16).toString('hex') },
     name: String,
-    code: String,
+    rawCode: String, // Código limpio del usuario (para editar sin lag)
+    code: String,    // Código ofuscado final (para Roblox)
     createdAt: { type: Date, default: Date.now }
 });
 
@@ -80,7 +81,7 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Ikgonavi Hub | Base64 Secure Panel</title>
+            <title>Ikgonavi Hub | Ultra Fluido</title>
             <script src="https://cdn.tailwindcss.com"></script>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -98,14 +99,14 @@ app.get('/', (req, res) => {
                     <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl text-white">⚡</div>
                     <div>
                         <h1 class="font-bold text-lg text-white">Ikgonavi Hub Pro</h1>
-                        <p class="text-xs text-indigo-400">Ofuscación Base64 Activa</p>
+                        <p class="text-xs text-indigo-400">Modo Anti-Freeze Activo</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap justify-end">
                     <button onclick="clearApiConfigs()" class="text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-300 px-3 py-2 rounded-xl border border-amber-800/50 font-semibold transition">🧹 Borrar APIs</button>
                     <button onclick="wipeAllDatabase()" class="text-xs bg-red-950/80 hover:bg-red-900 text-red-300 px-3 py-2 rounded-xl border border-red-800/50 font-semibold transition">🗑️ Borrar Todo</button>
                     <div class="text-xs bg-indigo-950/80 text-indigo-300 px-3 py-2 rounded-xl border border-indigo-800/50 font-mono">
-                        Status: <span class="text-emerald-400 font-bold">Base64 Ready</span>
+                        Status: <span class="text-emerald-400 font-bold">100% Fluido</span>
                     </div>
                 </div>
             </header>
@@ -143,26 +144,26 @@ app.get('/', (req, res) => {
 
             <script>
                 let editingId = null;
+                let cachedScripts = [];
                 window.onload = loadScripts;
 
                 async function loadScripts() {
                     const container = document.getElementById('scriptListContainer');
 
-                    let dbScripts = [];
                     try {
                         const res = await fetch('/api/scripts');
-                        dbScripts = await res.json();
-                    } catch(e) {}
+                        cachedScripts = await res.json();
+                    } catch(e) { cachedScripts = []; }
 
-                    document.getElementById('counterBadge').innerText = dbScripts.length + ' scripts';
+                    document.getElementById('counterBadge').innerText = cachedScripts.length + ' scripts';
                     
-                    if(dbScripts.length === 0) {
+                    if(cachedScripts.length === 0) {
                         container.innerHTML = '<p class="text-zinc-500 text-xs text-center py-10">No hay scripts creados. ¡Empieza desde cero!</p>';
                         return;
                     }
 
                     container.innerHTML = '';
-                    dbScripts.forEach(s => {
+                    cachedScripts.forEach(s => {
                         const loadstring = \`loadstring(game:HttpGet("\${window.location.origin}/api/script/\${s.id}"))()\`;
                         const card = document.createElement('div');
                         card.className = "bg-zinc-900/80 border border-zinc-800/80 p-4 rounded-xl flex flex-col gap-2";
@@ -170,7 +171,7 @@ app.get('/', (req, res) => {
                             <div class="flex justify-between items-center">
                                 <span class="font-bold text-sm text-indigo-300">\${s.name || 'Script Sin Nombre'}</span>
                                 <div class="flex gap-2">
-                                    <button onclick="startEdit('\${s.id}', \\\`\${encodeURIComponent(s.code || '')}\\\`, \\\`\${s.name || ''}\\\`)" class="text-[11px] bg-zinc-800 hover:bg-zinc-700 text-indigo-300 px-2.5 py-1 rounded-lg">Editar</button>
+                                    <button onclick="startEdit('\${s.id}')" class="text-[11px] bg-zinc-800 hover:bg-zinc-700 text-indigo-300 px-2.5 py-1 rounded-lg">Editar</button>
                                     <span class="text-[10px] text-zinc-500 font-mono self-center">ID: \${s.id}</span>
                                 </div>
                             </div>
@@ -252,10 +253,13 @@ app.get('/', (req, res) => {
                     } catch(e) { alert('Error de conexión.'); }
                 }
 
-                function startEdit(id, encodedCode, name) {
-                    editingId = id;
-                    document.getElementById('scriptCode').value = decodeURIComponent(encodedCode);
-                    document.getElementById('scriptName').value = name === 'null' ? '' : name;
+                function startEdit(id) {
+                    const script = cachedScripts.find(s => s.id === id);
+                    if(!script) return;
+                    editingId = script.id;
+                    // Carga el código limpio (rawCode) para que el editor vuele y no se congele
+                    document.getElementById('scriptCode').value = script.rawCode || script.code || '';
+                    document.getElementById('scriptName').value = script.name === 'null' ? '' : script.name;
                     document.getElementById('panelTitle').innerText = 'Editar Script';
                     document.getElementById('actionBtn').innerText = 'Guardar Cambios';
                     document.getElementById('cancelBtn').classList.remove('hidden');
@@ -300,7 +304,11 @@ app.post('/api/script', async (req, res) => {
 
         const protectedCode = nativeObfuscate(code);
 
-        const newScript = new ScriptModel({ name: name || 'Script Sin Nombre', code: protectedCode });
+        const newScript = new ScriptModel({ 
+            name: name || 'Script Sin Nombre', 
+            rawCode: code, 
+            code: protectedCode 
+        });
         await newScript.save();
         res.json({ id: newScript.id });
     } catch (error) {
@@ -317,7 +325,7 @@ app.put('/api/script/:id', async (req, res) => {
 
         const updated = await ScriptModel.findOneAndUpdate(
             { id: req.params.id }, 
-            { name: name || 'Script Sin Nombre', code: protectedCode }, 
+            { name: name || 'Script Sin Nombre', rawCode: code, code: protectedCode }, 
             { new: true }
         );
         if (!updated) return res.status(404).json({ error: 'No encontrado' });
@@ -355,5 +363,5 @@ app.get('/api/script/:id', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🛡️ Panel Pro Base64 Secured activo en el puerto ${PORT}`);
+    console.log(`🛡️ Panel Pro Anti-Freeze activo en el puerto ${PORT}`);
 });
