@@ -21,7 +21,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Native Obfuscator Activo"))
+    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Secure Byte Obfuscator Activo"))
     .catch((err) => console.error("❌ Error DB:", err));
 
 const scriptSchema = new mongoose.Schema({
@@ -33,47 +33,41 @@ const scriptSchema = new mongoose.Schema({
 
 const ScriptModel = mongoose.model('HubScript', scriptSchema);
 
-// Sistema de Ofuscación Nativo Automático al detectar un script
+// Sistema de Ofuscación Nativo por Bytes (100% Compatible y Robusto para Roblox)
 function nativeObfuscate(rawCode) {
-    const encoded = Buffer.from(rawCode, 'utf8').toString('base64');
-    const randVar1 = crypto.randomBytes(4).toString('hex');
-    const randVar2 = crypto.randomBytes(4).toString('hex');
-    const randVar3 = crypto.randomBytes(4).toString('hex');
-    
+    const key = Math.floor(Math.random() * 200) + 1; // Clave de desplazamiento aleatoria
+    const bytes = [];
+    for (let i = 0; i < rawCode.length; i++) {
+        bytes.push((rawCode.charCodeAt(i) + key) % 256);
+    }
+
+    const randVar1 = crypto.randomBytes(3).toString('hex');
+    const randVar2 = crypto.randomBytes(3).toString('hex');
+    const randVar3 = crypto.randomBytes(3).toString('hex');
+
+    // Generar ruido de variables basura para confundir descompiladores
     let junkNoise = "";
-    for (let i = 1; i <= 50; i++) {
+    for (let i = 1; i <= 35; i++) {
         const jKey = crypto.randomBytes(3).toString('hex');
         const jVal = crypto.randomBytes(6).toString('hex');
-        junkNoise += `local _node_${jKey}_${i} = "${jVal}"\n`;
+        junkNoise += `local _noise_${jKey}_${i} = "${jVal}"\n`;
     }
 
     const obfuscatedTemplate = `
--- [SECURED BY IKGONAVI NATIVE PRO OBFUSCATOR]
+-- [PROTECTED BY IKGONAVI SECURE OBFUSCATOR]
 ${junkNoise}
-local ${randVar1} = "${encoded}";
-local function ${randVar2}(b)
-    local c, d, e = "", "", {
-        ["A"]=0,["B"]=1,["C"]=2,["D"]=3,["E"]=4,["F"]=5,["G"]=6,["H"]=7,["I"]=8,["J"]=9,["K"]=10,["L"]=11,["M"]=12,["N"]=13,["O"]=14,["P"]=15,
-        ["Q"]=16,["R"]=17,["S"]=18,["T"]=19,["U"]=20,["V"]=21,["W"]=22,["X"]=23,["Y"]=24,["Z"]=25,["a"]=26,["b"]=27,["c"]=28,["d"]=29,
-        ["e"]=30,["f"]=31,["g"]=32,["h"]=33,["i"]=34,["j"]=35,["k"]=36,["l"]=37,["m"]=38,["n"]=39,["o"]=40,["p"]=41,["q"]=42,["r"]=43,
-        ["s"]=44,["t"]=45,["u"]=46,["v"]=47,["w"]=48,["x"]=49,["y"]=50,["z"]=51,["0"]=52,["1"]=53,["2"]=54,["3"]=55,["4"]=56,["5"]=57,
-        ["6"]=58,["7"]=59,["8"]=60,["9"]=61,["+"]=62,["/"]=63
-    }
-    b = string.gsub(b, "[^%w%+/%=]", "")
-    return (b:gsub(".", function(f)
-        if (f == "=") then return "" end
-        local g, h = "", e[f]
-        for i = 6, 1, -1 do g = g .. (h % 2^i - h % 2^(i-1) > 0 and "1" or "0") end
-        return g
-    end):gsub("%d%d%d?%d?%d?%d?%d?%d?", function(f)
-        if (#f ~= 8) then return "" end
-        local g = 0
-        for i = 1, 8 do g = g + (f:sub(i, i) == "1" and 2^(8-i) or 0) end
-        return string.char(g)
-    end))
+local ${randVar1} = {${bytes.join(',')}}
+local ${randVar2} = ${key}
+local ${randVar3} = {}
+for i = 1, #${randVar1} do
+    ${randVar3}[i] = string.char((${randVar1}[i] - ${randVar2}) % 256)
 end
-local ${randVar3} = ${randVar2}(${randVar1});
-assert(loadstring(${randVar3}))();
+local ok, res = pcall(function()
+    return loadstring(table.concat(${randVar3}))()
+end)
+if not ok then
+    warn("Hub Error: " .. tostring(res))
+end
 `;
     return obfuscatedTemplate.trim();
 }
@@ -85,7 +79,7 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Ikgonavi Hub | Native Secure Panel</title>
+            <title>Ikgonavi Hub | Secure Panel</title>
             <script src="https://cdn.tailwindcss.com"></script>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -103,14 +97,14 @@ app.get('/', (req, res) => {
                     <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl text-white">⚡</div>
                     <div>
                         <h1 class="font-bold text-lg text-white">Ikgonavi Hub Pro</h1>
-                        <p class="text-xs text-indigo-400">Protección Automática Activa</p>
+                        <p class="text-xs text-indigo-400">Ofuscación Automática Activa</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap justify-end">
                     <button onclick="clearApiConfigs()" class="text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-300 px-3 py-2 rounded-xl border border-amber-800/50 font-semibold transition">🧹 Borrar APIs</button>
                     <button onclick="wipeAllDatabase()" class="text-xs bg-red-950/80 hover:bg-red-900 text-red-300 px-3 py-2 rounded-xl border border-red-800/50 font-semibold transition">🗑️ Borrar Todo</button>
                     <div class="text-xs bg-indigo-950/80 text-indigo-300 px-3 py-2 rounded-xl border border-indigo-800/50 font-mono">
-                        Status: <span class="text-emerald-400 font-bold">Blindado Nativo</span>
+                        Status: <span class="text-emerald-400 font-bold">Blindado Byte</span>
                     </div>
                 </div>
             </header>
@@ -194,7 +188,7 @@ app.get('/', (req, res) => {
                     if(!code) return alert('¡Pega el código primero!');
 
                     const btn = document.getElementById('actionBtn');
-                    btn.innerText = 'Detectando y Ofuscando...';
+                    btn.innerText = 'Ofuscando automáticamente...';
                     btn.disabled = true;
 
                     if(editingId) {
@@ -206,7 +200,7 @@ app.get('/', (req, res) => {
                             });
                             const data = await res.json();
                             if(data.success) {
-                                alert('¡Script detectado, ofuscado y actualizado con éxito!');
+                                alert('¡Script ofuscado y actualizado con éxito!');
                                 resetForm();
                                 loadScripts();
                             } else {
@@ -227,7 +221,7 @@ app.get('/', (req, res) => {
                                 document.getElementById('scriptCode').value = '';
                                 document.getElementById('scriptName').value = '';
                                 loadScripts();
-                                alert('¡Script detectado, ofuscado automáticamente y loadstring generado!');
+                                alert('¡Script ofuscado automáticamente y loadstring generado!');
                             }
                         } catch(e) { alert('Error de conexión.'); }
                     }
@@ -360,5 +354,5 @@ app.get('/api/script/:id', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🛡️ Panel Pro Activo en el puerto ${PORT}`);
+    console.log(`🛡️ Panel Pro Byte Secured activo en el puerto ${PORT}`);
 });
