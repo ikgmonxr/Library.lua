@@ -21,20 +21,19 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Anti-Freeze Activo"))
+    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Anti-Freeze Extremo Activo"))
     .catch((err) => console.error("❌ Error DB:", err));
 
 const scriptSchema = new mongoose.Schema({
     id: { type: String, default: () => crypto.randomBytes(16).toString('hex') },
     name: String,
-    rawCode: String, // Código limpio del usuario (para editar sin lag)
-    code: String,    // Código ofuscado final (para Roblox)
+    rawCode: String,
+    code: String,
     createdAt: { type: Date, default: Date.now }
 });
 
 const ScriptModel = mongoose.model('HubScript', scriptSchema);
 
-// Sistema de Ofuscación Nativa con Base64
 function nativeObfuscate(rawCode) {
     const encoded = Buffer.from(rawCode, 'utf8').toString('base64');
     const randVar1 = crypto.randomBytes(3).toString('hex');
@@ -81,7 +80,7 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Ikgonavi Hub | Ultra Fluido</title>
+            <title>Ikgonavi Hub | Ultra Blindado</title>
             <script src="https://cdn.tailwindcss.com"></script>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -99,14 +98,14 @@ app.get('/', (req, res) => {
                     <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl text-white">⚡</div>
                     <div>
                         <h1 class="font-bold text-lg text-white">Ikgonavi Hub Pro</h1>
-                        <p class="text-xs text-indigo-400">Modo Anti-Freeze Activo</p>
+                        <p class="text-xs text-indigo-400">Sistema Anti-Dump Extremo Activo</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap justify-end">
                     <button onclick="clearApiConfigs()" class="text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-300 px-3 py-2 rounded-xl border border-amber-800/50 font-semibold transition">🧹 Borrar APIs</button>
                     <button onclick="wipeAllDatabase()" class="text-xs bg-red-950/80 hover:bg-red-900 text-red-300 px-3 py-2 rounded-xl border border-red-800/50 font-semibold transition">🗑️ Borrar Todo</button>
                     <div class="text-xs bg-indigo-950/80 text-indigo-300 px-3 py-2 rounded-xl border border-indigo-800/50 font-mono">
-                        Status: <span class="text-emerald-400 font-bold">100% Fluido</span>
+                        Status: <span class="text-emerald-400 font-bold">Blindado</span>
                     </div>
                 </div>
             </header>
@@ -118,7 +117,8 @@ app.get('/', (req, res) => {
                     
                     <div class="flex flex-col gap-3">
                         <input type="text" id="scriptName" placeholder="Nombre del Script (Ej. Silent Aim)" class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-sm text-white outline-none focus:border-indigo-500">
-                        <textarea id="scriptCode" placeholder="Pega tu código Lua aquí..." class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-indigo-300 font-mono h-48 resize-none outline-none focus:border-indigo-500"></textarea>
+                        <!-- ATRIBUTOS ANTI-CONGELAMIENTO AGREGADOS -->
+                        <textarea id="scriptCode" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Pega tu código Lua aquí..." class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-indigo-300 font-mono h-48 resize-none outline-none focus:border-indigo-500"></textarea>
                         <button id="actionBtn" onclick="saveScript()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">Ofuscar con Base64</button>
                         <button id="cancelBtn" onclick="resetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold py-2 rounded-xl text-xs transition">Cancelar Edición</button>
                     </div>
@@ -257,7 +257,6 @@ app.get('/', (req, res) => {
                     const script = cachedScripts.find(s => s.id === id);
                     if(!script) return;
                     editingId = script.id;
-                    // Carga el código limpio (rawCode) para que el editor vuele y no se congele
                     document.getElementById('scriptCode').value = script.rawCode || script.code || '';
                     document.getElementById('scriptName').value = script.name === 'null' ? '' : script.name;
                     document.getElementById('panelTitle').innerText = 'Editar Script';
@@ -363,5 +362,5 @@ app.get('/api/script/:id', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🛡️ Panel Pro Anti-Freeze activo en el puerto ${PORT}`);
+    console.log(`🛡️ Panel Pro Ultra Blindado activo en el puerto ${PORT}`);
 });
