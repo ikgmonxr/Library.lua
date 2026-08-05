@@ -21,7 +21,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Secure Byte Obfuscator Activo"))
+    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Base64 Obfuscator Activo"))
     .catch((err) => console.error("❌ Error DB:", err));
 
 const scriptSchema = new mongoose.Schema({
@@ -33,41 +33,42 @@ const scriptSchema = new mongoose.Schema({
 
 const ScriptModel = mongoose.model('HubScript', scriptSchema);
 
-// Sistema de Ofuscación Nativo por Bytes (100% Compatible y Robusto para Roblox)
+// Sistema de Ofuscación Nativa con Base64
 function nativeObfuscate(rawCode) {
-    const key = Math.floor(Math.random() * 200) + 1; // Clave de desplazamiento aleatoria
-    const bytes = [];
-    for (let i = 0; i < rawCode.length; i++) {
-        bytes.push((rawCode.charCodeAt(i) + key) % 256);
-    }
-
+    const encoded = Buffer.from(rawCode, 'utf8').toString('base64');
     const randVar1 = crypto.randomBytes(3).toString('hex');
     const randVar2 = crypto.randomBytes(3).toString('hex');
     const randVar3 = crypto.randomBytes(3).toString('hex');
+    const randVar4 = crypto.randomBytes(3).toString('hex');
 
-    // Generar ruido de variables basura para confundir descompiladores
     let junkNoise = "";
-    for (let i = 1; i <= 35; i++) {
+    for (let i = 1; i <= 25; i++) {
         const jKey = crypto.randomBytes(3).toString('hex');
         const jVal = crypto.randomBytes(6).toString('hex');
-        junkNoise += `local _noise_${jKey}_${i} = "${jVal}"\n`;
+        junkNoise += `local _b64_${jKey}_${i} = "${jVal}"\n`;
     }
 
     const obfuscatedTemplate = `
--- [PROTECTED BY IKGONAVI SECURE OBFUSCATOR]
+-- [CÓDIGO OFUSCADO CON BASE64 - LISTO PARA USAR]
 ${junkNoise}
-local ${randVar1} = {${bytes.join(',')}}
-local ${randVar2} = ${key}
-local ${randVar3} = {}
-for i = 1, #${randVar1} do
-    ${randVar3}[i] = string.char((${randVar1}[i] - ${randVar2}) % 256)
+local ${randVar1} = "${encoded}"
+local ${randVar2} = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+local function ${randVar3}(data)
+    data = string.gsub(data, '[^%w%+%/%=]', '')
+    return (data:gsub('.', function(x)
+        if (x == '=') then return '' end
+        local r, f = '', (${randVar2}:find(x) - 1)
+        for i = 6, 1, -1 do r = r .. (f % 2^i - f % 2^(i-1) > 0 and '1' or '0') end
+        return r
+    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+        if (#x ~= 8) then return '' end
+        local c = 0
+        for i = 1, 8 do c = c + (x:sub(i, i) == '1' and 2^(8-i) or 0) end
+        return string.char(c)
+    end))
 end
-local ok, res = pcall(function()
-    return loadstring(table.concat(${randVar3}))()
-end)
-if not ok then
-    warn("Hub Error: " .. tostring(res))
-end
+local ${randVar4} = ${randVar3}(${randVar1})
+assert(loadstring(${randVar4}))()
 `;
     return obfuscatedTemplate.trim();
 }
@@ -79,7 +80,7 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Ikgonavi Hub | Secure Panel</title>
+            <title>Ikgonavi Hub | Base64 Secure Panel</title>
             <script src="https://cdn.tailwindcss.com"></script>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -97,14 +98,14 @@ app.get('/', (req, res) => {
                     <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl text-white">⚡</div>
                     <div>
                         <h1 class="font-bold text-lg text-white">Ikgonavi Hub Pro</h1>
-                        <p class="text-xs text-indigo-400">Ofuscación Automática Activa</p>
+                        <p class="text-xs text-indigo-400">Ofuscación Base64 Activa</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap justify-end">
                     <button onclick="clearApiConfigs()" class="text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-300 px-3 py-2 rounded-xl border border-amber-800/50 font-semibold transition">🧹 Borrar APIs</button>
                     <button onclick="wipeAllDatabase()" class="text-xs bg-red-950/80 hover:bg-red-900 text-red-300 px-3 py-2 rounded-xl border border-red-800/50 font-semibold transition">🗑️ Borrar Todo</button>
                     <div class="text-xs bg-indigo-950/80 text-indigo-300 px-3 py-2 rounded-xl border border-indigo-800/50 font-mono">
-                        Status: <span class="text-emerald-400 font-bold">Blindado Byte</span>
+                        Status: <span class="text-emerald-400 font-bold">Base64 Ready</span>
                     </div>
                 </div>
             </header>
@@ -117,7 +118,7 @@ app.get('/', (req, res) => {
                     <div class="flex flex-col gap-3">
                         <input type="text" id="scriptName" placeholder="Nombre del Script (Ej. Silent Aim)" class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-sm text-white outline-none focus:border-indigo-500">
                         <textarea id="scriptCode" placeholder="Pega tu código Lua aquí..." class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-indigo-300 font-mono h-48 resize-none outline-none focus:border-indigo-500"></textarea>
-                        <button id="actionBtn" onclick="saveScript()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">Ofuscar y Generar</button>
+                        <button id="actionBtn" onclick="saveScript()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">Ofuscar con Base64</button>
                         <button id="cancelBtn" onclick="resetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold py-2 rounded-xl text-xs transition">Cancelar Edición</button>
                     </div>
 
@@ -188,7 +189,7 @@ app.get('/', (req, res) => {
                     if(!code) return alert('¡Pega el código primero!');
 
                     const btn = document.getElementById('actionBtn');
-                    btn.innerText = 'Ofuscando automáticamente...';
+                    btn.innerText = 'Ofuscando con Base64...';
                     btn.disabled = true;
 
                     if(editingId) {
@@ -200,7 +201,7 @@ app.get('/', (req, res) => {
                             });
                             const data = await res.json();
                             if(data.success) {
-                                alert('¡Script ofuscado y actualizado con éxito!');
+                                alert('¡Código ofuscado con Base64 con éxito! Actualizado correctamente.');
                                 resetForm();
                                 loadScripts();
                             } else {
@@ -221,11 +222,11 @@ app.get('/', (req, res) => {
                                 document.getElementById('scriptCode').value = '';
                                 document.getElementById('scriptName').value = '';
                                 loadScripts();
-                                alert('¡Script ofuscado automáticamente y loadstring generado!');
+                                alert('¡Código ofuscado con Base64 con éxito! Loadstring listo para usar.');
                             }
                         } catch(e) { alert('Error de conexión.'); }
                     }
-                    btn.innerText = 'Ofuscar y Generar';
+                    btn.innerText = 'Ofuscar con Base64';
                     btn.disabled = false;
                 }
 
@@ -267,7 +268,7 @@ app.get('/', (req, res) => {
                     document.getElementById('scriptName').value = '';
                     document.getElementById('resultOutput').value = '';
                     document.getElementById('panelTitle').innerText = 'Nuevo Script';
-                    document.getElementById('actionBtn').innerText = 'Ofuscar y Generar';
+                    document.getElementById('actionBtn').innerText = 'Ofuscar con Base64';
                     document.getElementById('cancelBtn').classList.add('hidden');
                 }
             </script>
@@ -354,5 +355,5 @@ app.get('/api/script/:id', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🛡️ Panel Pro Byte Secured activo en el puerto ${PORT}`);
+    console.log(`🛡️ Panel Pro Base64 Secured activo en el puerto ${PORT}`);
 });
