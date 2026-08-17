@@ -9,21 +9,16 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
-
-      - name: Enviar Embed a Discord Webhook
+      - name: Enviar Embed a Discord
         run: |
           curl -H "Content-Type: application/json" \
           -X POST \
           -d '{
-            "username": "Ikgonavi Status Manager",
+            "username": "Ikgonavi Status Bot",
             "embeds": [{
               "title": "🟢 Datos del Sitio Actualizados",
-              "description": "Se han modificado los scripts en **ikgmonxr.github.io/Library.lua**",
-              "color": 5763719,
-              "footer": { "text": "GitHub Pages Auto-Sync" },
-              "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+              "description": "Se ha modificado status.json en ikgmonxr.github.io/Library.lua",
+              "color": 5763719
             }]
           }' \
           "https://discord.com/api/webhooks/1539040228873076837/4vpo5dQgn3F1XXpallGCECAEomiaTEIWVSGd7-czYVgcCPPwr7fS-hdp-hKaZvSajuyG"
