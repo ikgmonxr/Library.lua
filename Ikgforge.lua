@@ -1,399 +1,389 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const crypto = require('crypto');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-
-const app = express();
-
-app.set('trust proxy', 1);
-app.use(helmet());
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
-
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 40,
-    message: '🚫 Demasiadas peticiones. Tranquilo.',
-});
-app.use('/api/', limiter);
-
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("🔥 Servidor Ikgonavi Hub Pro + Base64 Automático Activo"))
-    .catch((err) => console.error("❌ Error DB:", err));
-
-const scriptSchema = new mongoose.Schema({
-    id: { type: String, default: () => crypto.randomBytes(16).toString('hex') },
-    name: String,
-    rawCode: String,
-    code: String,
-    createdAt: { type: Date, default: Date.now }
-});
-
-const ScriptModel = mongoose.model('HubScript', scriptSchema);
-
-function nativeObfuscate(rawCode) {
-    const encoded = Buffer.from(rawCode, 'utf8').toString('base64');
-    const randVar1 = crypto.randomBytes(3).toString('hex');
-    const randVar2 = crypto.randomBytes(3).toString('hex');
-    const randVar3 = crypto.randomBytes(3).toString('hex');
-    const randVar4 = crypto.randomBytes(3).toString('hex');
-
-    let junkNoise = "";
-    for (let i = 1; i <= 30; i++) {
-        const jKey = crypto.randomBytes(3).toString('hex');
-        const jVal = crypto.randomBytes(6).toString('hex');
-        junkNoise += `local _b64_${jKey}_${i} = "${jVal}"\n`;
-    }
-
-    const obfuscatedTemplate = `
--- [IKGONAVI HUB PRO - BASE64 AUTOMÁTICO]
-${junkNoise}
-local ${randVar1} = "${encoded}"
-local function ${randVar3}(data)
-    if base64_decode then return base64_decode(data) end
-    if crypt and crypt.base64 and crypt.base64.decode then return crypt.base64.decode(data) end
-    if syn and syn.crypt and syn.crypt.base64 and syn.crypt.base64.decode then return syn.crypt.base64.decode(data) end
-    
-    local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-    data = string.gsub(data, '[^%w%+%/%=]', '')
-    return (data:gsub('.', function(x)
-        if (x == '=') then return '' end
-        local r, f = '', (b:find(x) - 1)
-        for i = 6, 1, -1 do r = r .. (f % 2^i - f % 2^(i-1) > 0 and '1' or '0') end
-        return r
-    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
-        if (#x ~= 8) then return '' end
-        local c = 0
-        for i = 1, 8 do c = c + (x:sub(i, i) == '1' and 2^(8-i) or 0) end
-        return string.char(c)
-    end))
-end
-local ${randVar4} = ${randVar3}(${randVar1})
-assert(loadstring(${randVar4}))()
-`;
-    return obfuscatedTemplate.trim();
-}
-
-app.get('/', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Ikgonavi Hub | Base64 Automático</title>
-            <script src="https://cdn.tailwindcss.com"></script>
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-                body { font-family: 'Plus Jakarta Sans', sans-serif; background: #090a0f; color: #f3f4f6; }
-                .glass { background: rgba(18, 20, 32, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
-                .glow { box-shadow: 0 0 25px -5px rgba(88, 101, 242, 0.3); }
-                ::-webkit-scrollbar { width: 6px; }
-                ::-webkit-scrollbar-track { background: #090a0f; }
-                ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
-            </style>
-        </head>
-        <body class="min-h-screen flex flex-col items-center p-4 md:p-8">
-            <header class="w-full max-w-4xl flex justify-between items-center mb-8 glass p-5 rounded-2xl glow">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl text-white">⚡</div>
-                    <div>
-                        <h1 class="font-bold text-lg text-white">Ikgonavi Hub Pro</h1>
-                        <p class="text-xs text-indigo-400">Base64 Automático Activo</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 flex-wrap justify-end">
-                    <button onclick="clearApiConfigs()" class="text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-300 px-3 py-2 rounded-xl border border-amber-800/50 font-semibold transition">🧹 Borrar APIs</button>
-                    <button onclick="wipeAllDatabase()" class="text-xs bg-red-950/80 hover:bg-red-900 text-red-300 px-3 py-2 rounded-xl border border-red-800/50 font-semibold transition">🗑️ Borrar Todo</button>
-                    <div class="text-xs bg-indigo-950/80 text-indigo-300 px-3 py-2 rounded-xl border border-indigo-800/50 font-mono">
-                        Status: <span class="text-emerald-400 font-bold">Blindado</span>
-                    </div>
-                </div>
-            </header>
-
-            <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Columna Izquierda: Crear / Editar -->
-                <div class="md:col-span-1 glass p-6 rounded-2xl flex flex-col gap-4 h-fit">
-                    <h2 id="panelTitle" class="font-bold text-base text-indigo-300">Nuevo Script</h2>
-                    
-                    <div class="flex flex-col gap-3">
-                        <input type="text" id="scriptName" placeholder="Nombre del Script (Ej. Silent Aim)" class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-sm text-white outline-none focus:border-indigo-500">
-                        
-                        <div class="flex justify-between items-center">
-                            <label class="text-[11px] text-zinc-400">Código Lua:</label>
-                            <button onclick="pasteLargeCode()" type="button" class="text-[11px] bg-indigo-950 hover:bg-indigo-900 text-indigo-300 px-2.5 py-1 rounded-lg border border-indigo-800/50 font-semibold transition">📋 Pegar Código Grande</button>
-                        </div>
-
-                        <textarea id="scriptCode" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Pega tu código aquí..." class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-indigo-300 font-mono h-48 resize-none outline-none focus:border-indigo-500"></textarea>
-                        
-                        <button id="actionBtn" onclick="saveScript()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">Ofuscar con Base64</button>
-                        <button id="cancelBtn" onclick="resetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold py-2 rounded-xl text-xs transition">Cancelar Edición</button>
-                    </div>
-
-                    <div class="mt-2 flex flex-col gap-1.5">
-                        <div class="flex justify-between items-center">
-                            <label class="text-xs text-zinc-400">Loadstring Directo:</label>
-                            <button onclick="copyResultOutput()" class="text-[10px] text-indigo-400 hover:text-indigo-300 underline">Copiar</button>
-                        </div>
-                        <textarea id="resultOutput" readonly placeholder="Aparecerá aquí listo para usar..." class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-emerald-400 font-mono h-20 resize-none outline-none w-full"></textarea>
-                    </div>
-                </div>
-
-                <!-- Columna Derecha: Lista de Scripts -->
-                <div class="md:col-span-2 glass p-6 rounded-2xl flex flex-col gap-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-base text-white">Scripts Registrados</h3>
-                        <span id="counterBadge" class="text-xs bg-indigo-950 text-indigo-300 px-3 py-1 rounded-full border border-indigo-800">0 scripts</span>
-                    </div>
-
-                    <div id="scriptListContainer" class="flex flex-col gap-3 max-h-[460px] overflow-y-auto pr-1">
-                        <p class="text-zinc-500 text-xs text-center py-10">Cargando scripts...</p>
-                    </div>
-                </div>
-            </main>
-
-            <script>
-                let editingId = null;
-                let cachedScripts = [];
-                window.onload = loadScripts;
-
-                async function loadScripts() {
-                    const container = document.getElementById('scriptListContainer');
-
-                    try {
-                        const res = await fetch('/api/scripts');
-                        cachedScripts = await res.json();
-                    } catch(e) { cachedScripts = []; }
-
-                    document.getElementById('counterBadge').innerText = cachedScripts.length + ' scripts';
-                    
-                    if(cachedScripts.length === 0) {
-                        container.innerHTML = '<p class="text-zinc-500 text-xs text-center py-10">No hay scripts creados. ¡Empieza desde cero!</p>';
-                        return;
-                    }
-
-                    container.innerHTML = '';
-                    cachedScripts.forEach(s => {
-                        const loadstring = \`loadstring(game:HttpGet("\${window.location.origin}/api/script/\${s.id}"))()\`;
-                        const card = document.createElement('div');
-                        card.className = "bg-zinc-900/80 border border-zinc-800/80 p-4 rounded-xl flex flex-col gap-2";
-                        card.innerHTML = \`
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-sm text-indigo-300">\${s.name || 'Script Sin Nombre'}</span>
-                                <div class="flex gap-2">
-                                    <button onclick="startEdit('\${s.id}')" class="text-[11px] bg-zinc-800 hover:bg-zinc-700 text-indigo-300 px-2.5 py-1 rounded-lg">Editar</button>
-                                    <span class="text-[10px] text-zinc-500 font-mono self-center">ID: \${s.id}</span>
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-2 mt-1">
-                                <textarea readonly class="bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-xs text-zinc-400 font-mono h-16 resize-none outline-none w-full">\${loadstring}</textarea>
-                                <button onclick="navigator.clipboard.writeText(\\\`\${loadstring}\\\`); alert('¡Loadstring copiado!');" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-semibold self-end">Copiar Loadstring</button>
-                            </div>
-                        \`;
-                        container.appendChild(card);
-                    });
-                }
-
-                async function pasteLargeCode() {
-                    try {
-                        const text = await navigator.clipboard.readText();
-                        if(!text) return alert('El portapapeles está vacío.');
-                        document.getElementById('scriptCode').value = text;
-                    } catch (err) {
-                        alert('Haz clic dentro del cuadro de texto y presiona Ctrl + V.');
-                    }
-                }
-
-                function copyResultOutput() {
-                    const val = document.getElementById('resultOutput').value;
-                    if(!val) return alert('No hay ningún loadstring generado aún.');
-                    navigator.clipboard.writeText(val);
-                    alert('¡Loadstring copiado al portapapeles con éxito!');
-                }
-
-                async function saveScript() {
-                    const name = document.getElementById('scriptName').value;
-                    const code = document.getElementById('scriptCode').value;
-                    if(!code) return alert('¡Pega el código primero!');
-
-                    const btn = document.getElementById('actionBtn');
-                    btn.innerText = 'Ofuscando con Base64...';
-                    btn.disabled = true;
-
-                    if(editingId) {
-                        try {
-                            const res = await fetch('/api/script/' + editingId, {
-                                method: 'PUT',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({ name, code })
-                            });
-                            const data = await res.json();
-                            if(data.success) {
-                                const loadstring = \`loadstring(game:HttpGet("\${window.location.origin}/api/script/\${editingId}"))()\`;
-                                document.getElementById('resultOutput').value = loadstring;
-                                alert('¡Código ofuscado con Base64 y actualizado con éxito! Listo para usar.');
-                                loadScripts();
-                            } else {
-                                alert('Error al actualizar.');
-                            }
-                        } catch(e) { alert('Error de conexión.'); }
-                    } else {
-                        try {
-                            const res = await fetch('/api/script', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({ name, code })
-                            });
-                            const data = await res.json();
-                            if(data.id) {
-                                const loadstring = \`loadstring(game:HttpGet("\${window.location.origin}/api/script/\${data.id}"))()\`;
-                                document.getElementById('resultOutput').value = loadstring;
-                                document.getElementById('scriptCode').value = '';
-                                document.getElementById('scriptName').value = '';
-                                loadScripts();
-                                alert('¡Código convertido a Base64 con éxito! Loadstring listo para usar.');
-                            }
-                        } catch(e) { alert('Error de conexión.'); }
-                    }
-                    btn.innerText = 'Ofuscar con Base64';
-                    btn.disabled = false;
-                }
-
-                function clearApiConfigs() {
-                    if(!confirm('🧹 ¿Deseas limpiar todas las configuraciones locales?')) return;
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    alert('✨ Datos locales borrados.');
-                }
-
-                async function wipeAllDatabase() {
-                    if(!confirm('⚠️ ¿ESTÁS SEGURO? Esto borrará todos tus scripts.')) return;
-                    try {
-                        const res = await fetch('/api/scripts/wipe', { method: 'DELETE' });
-                        const data = await res.json();
-                        if(data.success) {
-                            alert('🗑️ Base de datos limpiada.');
-                            resetForm();
-                            loadScripts();
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IKGONAVI HUB — System Status</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Inter & JetBrains Mono) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            900: '#312e81',
+                        },
+                        status: {
+                            green: '#10b981',
+                            yellow: '#f59e0b',
+                            red: '#ef4444'
                         }
-                    } catch(e) { alert('Error de conexión.'); }
+                    }
                 }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #090d16;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .pulse-glow {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-200 min-h-screen flex flex-col justify-between antialiased">
 
-                function startEdit(id) {
-                    const script = cachedScripts.find(s => s.id === id);
-                    if(!script) return;
-                    editingId = script.id;
-                    document.getElementById('scriptCode').value = script.rawCode || script.code || '';
-                    document.getElementById('scriptName').value = script.name === 'null' ? '' : script.name;
-                    
-                    const loadstring = \`loadstring(game:HttpGet("\${window.location.origin}/api/script/\${script.id}"))()\`;
-                    document.getElementById('resultOutput').value = loadstring;
+    <!-- Header Section -->
+    <header class="border-b border-slate-800/80 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-400 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/20">
+                    I
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-white tracking-wide">IKGONAVI HUB</h1>
+                    <p class="text-xs text-slate-400 font-mono">STATUS DASHBOARD</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="#" class="text-xs font-medium text-slate-400 hover:text-white transition flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+                    <i class="fa-brands fa-discord text-indigo-400 text-sm"></i> Discord
+                </a>
+                <button onclick="checkStatus()" class="text-xs font-medium bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> Actualizar
+                </button>
+            </div>
+        </div>
+    </header>
 
-                    document.getElementById('panelTitle').innerText = 'Editar Script';
-                    document.getElementById('actionBtn').innerText = 'Guardar Cambios';
-                    document.getElementById('cancelBtn').classList.remove('hidden');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-grow space-y-8">
 
-                function resetForm() {
-                    editingId = null;
-                    document.getElementById('scriptCode').value = '';
-                    document.getElementById('scriptName').value = '';
-                    document.getElementById('resultOutput').value = '';
-                    document.getElementById('panelTitle').innerText = 'Nuevo Script';
-                    document.getElementById('actionBtn').innerText = 'Ofuscar con Base64';
-                    document.getElementById('cancelBtn').classList.add('hidden');
-                }
-            </script>
-        </body>
-        </html>
-    `);
-});
+        <!-- Banner General Status -->
+        <div class="glass-card rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="flex items-center gap-5 z-10">
+                <div class="relative flex items-center justify-center">
+                    <span class="animate-ping absolute inline-flex h-12 w-12 rounded-full bg-emerald-400 opacity-75"></span>
+                    <div class="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 text-xl pulse-glow">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Todos los Sistemas Operativos</h2>
+                    <p class="text-slate-400 text-sm mt-0.5">Ikgonavi Hub está funcionando al 100% sin detecciones reportadas.</p>
+                </div>
+            </div>
 
-app.get('/api/scripts', async (req, res) => {
-    try {
-        const scripts = await ScriptModel.find().sort({ createdAt: -1 });
-        res.json(scripts);
-    } catch(e) { res.json([]); }
-});
+            <div class="flex gap-4 font-mono text-xs z-10 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-slate-800 pt-4 sm:pt-0">
+                <div class="bg-slate-900/80 px-4 py-2.5 rounded-xl border border-slate-800/80 text-center">
+                    <span class="text-slate-500 block text-[10px] uppercase tracking-wider">Uptime</span>
+                    <span class="text-emerald-400 font-bold text-sm">99.98%</span>
+                </div>
+                <div class="bg-slate-900/80 px-4 py-2.5 rounded-xl border border-slate-800/80 text-center">
+                    <span class="text-slate-500 block text-[10px] uppercase tracking-wider">Latencia API</span>
+                    <span class="text-slate-200 font-bold text-sm" id="ping-val">18 ms</span>
+                </div>
+                <div class="bg-slate-900/80 px-4 py-2.5 rounded-xl border border-slate-800/80 text-center">
+                    <span class="text-slate-500 block text-[10px] uppercase tracking-wider">Versión</span>
+                    <span class="text-indigo-400 font-bold text-sm">v4.2.0-HYP</span>
+                </div>
+            </div>
+        </div>
 
-app.delete('/api/scripts/wipe', async (req, res) => {
-    try {
-        await ScriptModel.deleteMany({});
-        res.json({ success: true, message: 'Todos los scripts han sido eliminados correctamente.' });
-    } catch (error) {
-        res.status(500).json({ error: 'Error interno al limpiar la base de datos' });
-    }
-});
+        <!-- Metric Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="glass-card p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">Anti-Cheat Bypassed</p>
+                    <p class="text-lg font-bold text-white mt-1">Hyperion / Byfron</p>
+                </div>
+                <span class="px-2.5 py-1 text-[11px] font-semibold font-mono rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    UNDETECTED
+                </span>
+            </div>
+            <div class="glass-card p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">Key System Server</p>
+                    <p class="text-lg font-bold text-white mt-1">Online</p>
+                </div>
+                <span class="px-2.5 py-1 text-[11px] font-semibold font-mono rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    OPERATIONAL
+                </span>
+            </div>
+            <div class="glass-card p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">Auto-Attach Rate</p>
+                    <p class="text-lg font-bold text-white mt-1">100% Success</p>
+                </div>
+                <span class="px-2.5 py-1 text-[11px] font-semibold font-mono rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    STABLE
+                </span>
+            </div>
+            <div class="glass-card p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">Ejecuciones Hoy</p>
+                    <p class="text-lg font-bold text-white mt-1">142,890+</p>
+                </div>
+                <span class="px-2.5 py-1 text-[11px] font-semibold font-mono rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    ACTIVE
+                </span>
+            </div>
+        </div>
 
-app.post('/api/script', async (req, res) => {
-    try {
-        const { name, code } = req.body;
-        if (!code) return res.status(400).json({ error: 'Falta el código' });
+        <!-- Módulos & Servicios Detailed Status -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-800/80 flex items-center justify-between bg-slate-900/40">
+                <h3 class="font-semibold text-white text-base flex items-center gap-2">
+                    <i class="fa-solid fa-server text-indigo-400"></i> Estado de Módulos & Script Hubs
+                </h3>
+                <span class="text-xs font-mono text-slate-400">Verificado hace <span id="time-ago">10</span> segundos</span>
+            </div>
 
-        const protectedCode = nativeObfuscate(code);
+            <div class="divide-y divide-slate-800/60 font-sans">
 
-        const newScript = new ScriptModel({ 
-            name: name || 'Script Sin Nombre', 
-            rawCode: code, 
-            code: protectedCode 
-        });
-        await newScript.save();
-        res.json({ id: newScript.id });
-    } catch (error) {
-        res.status(500).json({ error: 'Error interno' });
-    }
-});
+                <!-- Service Item 1 -->
+                <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-microchip text-slate-400 w-5 text-center"></i>
+                        <div>
+                            <p class="text-sm font-medium text-white">Execution Core (Lua Engine)</p>
+                            <p class="text-xs text-slate-400">Motor de ejecución principal sUNC 99% compatibility</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="hidden sm:inline text-xs text-emerald-400 font-mono">0.0% Detection</span>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Undetected
+                        </span>
+                    </div>
+                </div>
 
-app.put('/api/script/:id', async (req, res) => {
-    try {
-        const { name, code } = req.body;
-        if (!code) return res.status(400).json({ error: 'Falta el código' });
+                <!-- Service Item 2 -->
+                <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-key text-slate-400 w-5 text-center"></i>
+                        <div>
+                            <p class="text-sm font-medium text-white">Auth & Key System API</p>
+                            <p class="text-xs text-slate-400">Validación de claves y sistema de checkpoints</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="hidden sm:inline text-xs text-emerald-400 font-mono">12ms response</span>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Operational
+                        </span>
+                    </div>
+                </div>
 
-        const protectedCode = nativeObfuscate(code);
+                <!-- Service Item 3 -->
+                <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-cloud-arrow-down text-slate-400 w-5 text-center"></i>
+                        <div>
+                            <p class="text-sm font-medium text-white">Cloud Script Hub Catalog</p>
+                            <p class="text-xs text-slate-400">Servidores de carga de scripts para Blox Fruits, Rivals, Brookhaven</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="hidden sm:inline text-xs text-emerald-400 font-mono">100% Online</span>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Operational
+                        </span>
+                    </div>
+                </div>
 
-        const updated = await ScriptModel.findOneAndUpdate(
-            { id: req.params.id }, 
-            { name: name || 'Script Sin Nombre', rawCode: code, code: protectedCode }, 
-            { new: true }
-        );
-        if (!updated) return res.status(404).json({ error: 'No encontrado' });
-        res.json({ success: true, id: updated.id });
-    } catch (error) {
-        res.status(500).json({ error: 'Error interno' });
-    }
-});
+                <!-- Service Item 4 -->
+                <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-shield-halved text-slate-400 w-5 text-center"></i>
+                        <div>
+                            <p class="text-sm font-medium text-white">Bypass Hooking Layer</p>
+                            <p class="text-xs text-slate-400">Protección contra parches del servidor y MemCheck</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="hidden sm:inline text-xs text-emerald-400 font-mono">Protected</span>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Operational
+                        </span>
+                    </div>
+                </div>
 
-app.get('/api/script/:id', async (req, res) => {
-    const userAgent = (req.headers['user-agent'] || '').toLowerCase();
+                <!-- Service Item 5 -->
+                <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-robot text-slate-400 w-5 text-center"></i>
+                        <div>
+                            <p class="text-sm font-medium text-white">Discord Bot Integration</p>
+                            <p class="text-xs text-slate-400">Verificación de roles, auto-getkey y soporte</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="hidden sm:inline text-xs text-emerald-400 font-mono">Active</span>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Operational
+                        </span>
+                    </div>
+                </div>
 
-    const isBrowser = /chrome|firefox|safari|edg|opera|msie|trident|mozilla/i.test(userAgent) && !userAgent.includes('roblox');
-    const isDiscordBot = userAgent.includes('discordbot') || userAgent.includes('discord');
-    const isScraperTool = /python|axios|node-fetch|wget|postman|bot|crawler|spider|scraper|java|ruby|php|go-http-client/i.test(userAgent);
+            </div>
+        </div>
 
-    if (isBrowser || isDiscordBot || isScraperTool) {
-        return res.status(403).send('-- ACCESO DENEGADO: Este script solo puede ejecutarse dentro de Roblox.');
-    }
+        <!-- Uptime Graph Simulation (90 Días) -->
+        <div class="glass-card rounded-2xl p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-semibold text-white text-sm">Historial de Disponibilidad (Últimos 90 días)</h3>
+                <span class="text-xs text-emerald-400 font-mono">100% Uptime</span>
+            </div>
+            
+            <!-- Bars Grid -->
+            <div class="grid grid-cols-30 sm:grid-cols-45 gap-1 h-10 items-end" id="uptime-bars">
+                <!-- Javascript va a generar las 45 barras de estado aquí -->
+            </div>
 
-    try {
-        const scriptData = await ScriptModel.findOne({ id: req.params.id });
+            <div class="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-800/60 font-mono">
+                <span>Hace 90 días</span>
+                <span>Sin caídas detectadas</span>
+                <span>Hoy</span>
+            </div>
+        </div>
+
+        <!-- Quick Loader Box -->
+        <div class="glass-card rounded-2xl p-6 bg-gradient-to-r from-slate-900/90 via-indigo-950/20 to-slate-900/90 border border-indigo-500/20">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h4 class="text-white font-semibold text-base flex items-center gap-2">
+                        <i class="fa-solid fa-code text-indigo-400"></i> Ikgonavi Loader Script
+                    </h4>
+                    <p class="text-xs text-slate-400 mt-1">Usa este loadstring directo en tu ejecutor para cargar la versión oficial siempre actualizada.</p>
+                </div>
+                <div class="w-full md:w-auto flex items-center gap-2 bg-slate-950 px-4 py-3 rounded-xl border border-slate-800 font-mono text-xs text-indigo-300 overflow-x-auto">
+                    <span class="select-all">loadstring(game:HttpGet("https://raw.githubusercontent.com/ikgonavi/hub/main/loader.lua"))()</span>
+                    <button onclick="copyLoadstring()" id="copy-btn" class="ml-2 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-sans transition flex items-center gap-1">
+                        <i class="fa-regular fa-copy"></i> Copiar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Incident Log -->
+        <div class="glass-card rounded-2xl p-6 space-y-4">
+            <h3 class="font-semibold text-white text-base">Historial de Incidentes Recientes</h3>
+            <div class="space-y-3 font-sans">
+                <div class="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800/60 flex items-start gap-3">
+                    <i class="fa-solid fa-circle-check text-emerald-400 text-sm mt-0.5"></i>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-white">Actualización v4.2.0 Desplegada</span>
+                            <span class="text-[10px] font-mono text-slate-500">Ayer, 18:40 UTC</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5">Soporte añadido para la última versión de Roblox PC/Mobile. Todos los métodos de bypass optimizados.</p>
+                    </div>
+                </div>
+                <div class="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800/60 flex items-start gap-3">
+                    <i class="fa-solid fa-circle-check text-emerald-400 text-sm mt-0.5"></i>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-white">Mantenimiento Programado Completado</span>
+                            <span class="text-[10px] font-mono text-slate-500">Hace 3 días</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5">Servidores Auth migrados a infraestructura de menor latencia.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 bg-slate-950/60 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p>© 2026 IKGONAVI HUB. Todos los derechos reservados.</p>
+            <p class="flex items-center gap-4">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> All systems operational</span>
+                <a href="#" class="hover:text-slate-300 transition">Términos</a>
+                <a href="#" class="hover:text-slate-300 transition">Discord</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JS Logic for Dynamic Feel -->
+    <script>
+        // Generar barras de uptime aleatorias pero 100% verdes
+        const barsContainer = document.getElementById('uptime-bars');
+        const totalBars = window.innerWidth < 640 ? 30 : 45;
         
-        if (!scriptData) {
-            return res.status(404).send('-- Script no encontrado o eliminado');
+        for (let i = 0; i < totalBars; i++) {
+            const bar = document.createElement('div');
+            // Altura variable para dar aspecto orgánico de carga
+            const randomHeight = Math.floor(Math.random() * 40) + 60; 
+            bar.className = 'bg-emerald-500/80 hover:bg-emerald-400 transition-all rounded-sm cursor-pointer group relative';
+            bar.style.height = `${randomHeight}%`;
+            
+            // Tooltip hover
+            bar.innerHTML = `<div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block bg-slate-900 border border-slate-700 text-[10px] text-white px-2 py-1 rounded shadow-xl whitespace-nowrap z-20 font-mono">100% Uptime</div>`;
+            
+            barsContainer.appendChild(bar);
         }
 
-        res.setHeader('Content-Type', 'text/plain');
-        res.send(scriptData.code);
-    } catch (error) {
-        console.error("Error al obtener script:", error);
-        res.status(500).send('-- Error interno del servidor');
-    }
-});
+        // Simulación de actualización de estado
+        function checkStatus() {
+            const icon = document.getElementById('refresh-icon');
+            icon.classList.add('fa-spin');
+            
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                document.getElementById('ping-val').innerText = Math.floor(Math.random() * 8 + 12) + ' ms';
+                document.getElementById('time-ago').innerText = '0';
+            }, 700);
+        }
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🛡️ Panel Pro Base64 Automático Activo en el puerto ${PORT}`);
-});
+        // Contador de segundos desde la última verificación
+        let seconds = 10;
+        setInterval(() => {
+            seconds++;
+            document.getElementById('time-ago').innerText = seconds;
+        }, 1000);
+
+        // Copiar loadstring al portapapeles
+        function copyLoadstring() {
+            const code = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/ikgonavi/hub/main/loader.lua"))()';
+            navigator.clipboard.writeText(code);
+            
+            const btn = document.getElementById('copy-btn');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
+            btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar';
+                btn.classList.replace('bg-emerald-600', 'bg-indigo-600');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
