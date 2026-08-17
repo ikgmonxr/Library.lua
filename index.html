@@ -81,7 +81,7 @@
                     </div>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-bold text-white">Ikgonavi Hub Online</h2>
+                    <h2 class="text-2xl font-bold text-white" id="general-status-text">Ikgonavi Hub Online</h2>
                     <p class="text-slate-400 text-sm mt-0.5">Todos los scripts principales y servidores API funcionando al 100%.</p>
                 </div>
             </div>
@@ -406,8 +406,34 @@
         </div>
     </footer>
 
-    <!-- Interactive Scripts -->
+    <!-- Interactive Scripts & API Sync -->
     <script>
+        const API_URL = "https://https-api-ikg-com-api-v1-luascripts.onrender.com/api/status";
+
+        // Sincronizar datos de la API dinámicamente
+        async function syncWebsiteData() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) return;
+                const data = await response.json();
+
+                if (data.hub_script && document.getElementById('loadstring-hub')) {
+                    document.getElementById('loadstring-hub').innerText = data.hub_script;
+                }
+                if (data.mvs_script && document.getElementById('loadstring-mvs')) {
+                    document.getElementById('loadstring-mvs').innerText = data.mvs_script;
+                }
+                if (data.mm2_script && document.getElementById('loadstring-mm2')) {
+                    document.getElementById('loadstring-mm2').innerText = data.mm2_script;
+                }
+                if (data.status_general && document.getElementById('general-status-text')) {
+                    document.getElementById('general-status-text').innerText = `Ikgonavi Hub ${data.status_general}`;
+                }
+            } catch (error) {
+                console.error("Error al sincronizar datos de la API:", error);
+            }
+        }
+
         // Copiar scripts dinámicamente
         function copyCode(elementId, buttonId) {
             const textToCopy = document.getElementById(elementId).innerText.trim();
@@ -440,16 +466,19 @@
             });
         }
 
-        // Simulación de botón refrescar
+        // Botón refrescar
         function checkStatus() {
             const icon = document.getElementById('refresh-icon');
             icon.classList.add('fa-spin');
+            syncWebsiteData();
             
             setTimeout(() => {
                 icon.classList.remove('fa-spin');
                 document.getElementById('ping-val').innerText = Math.floor(Math.random() * 5 + 12) + ' ms';
             }, 500);
         }
+
+        document.addEventListener('DOMContentLoaded', syncWebsiteData);
     </script>
 </body>
 </html>
