@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IKGONAVI HUB — Official Status Dashboard</title>
+    <title>IKGONAVI HUB — Official Status & Loader</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -25,26 +25,26 @@
     </script>
     <style>
         body {
-            background-color: #090d16;
+            background-color: #080c14;
             background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
             background-attachment: fixed;
         }
         .glass-card {
-            background: rgba(15, 23, 42, 0.65);
+            background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .pulse-glow {
             box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
         }
     </style>
 </head>
-<body class="font-sans text-slate-200 min-h-screen flex flex-col justify-between antialiased">
+<body class="font-sans text-slate-200 min-h-screen flex flex-col justify-between antialiased selection:bg-indigo-500 selection:text-white">
 
-    <!-- Navbar Header -->
-    <header class="border-b border-slate-800/80 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
+    <!-- Header / Navbar -->
+    <header class="border-b border-slate-800/80 bg-slate-950/50 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-400 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/20">
@@ -52,35 +52,24 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg text-white tracking-wide">IKGONAVI HUB</h1>
-                    <p class="text-xs text-slate-400 font-mono">STATUS & COMPATIBILITY DASHBOARD</p>
+                    <p class="text-[11px] text-slate-400 font-mono">STATUS & LOADERS DASHBOARD</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <a href="https://discord.gg" target="_blank" class="text-xs font-medium text-slate-300 hover:text-white transition flex items-center gap-2 bg-slate-900 px-3.5 py-2 rounded-xl border border-slate-800 hover:border-slate-700">
-                    <i class="fa-brands fa-discord text-indigo-400 text-sm"></i> <span class="hidden sm:inline">Discord</span>
+                <a href="https://discord.gg/nkVBp9xXdS" target="_blank" rel="noopener noreferrer" class="text-xs font-medium text-slate-300 hover:text-white transition flex items-center gap-2 bg-slate-900 px-3.5 py-2 rounded-xl border border-slate-800 hover:border-slate-700">
+                    <i class="fa-brands fa-discord text-indigo-400 text-sm"></i> <span class="hidden sm:inline">Discord Community</span>
                 </a>
                 <button onclick="checkStatus()" class="text-xs font-medium bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-3.5 py-2 rounded-xl transition flex items-center gap-2">
-                    <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> <span class="hidden sm:inline">Actualizar</span>
+                    <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> <span class="hidden sm:inline">Actualizar Status</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
+    <!-- Main Container -->
     <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-grow space-y-8">
 
-        <!-- Banner de Anuncio Importante -->
-        <div class="bg-indigo-950/40 border border-indigo-500/30 rounded-2xl p-4 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <span class="p-2 rounded-xl bg-indigo-500/20 text-indigo-400"><i class="fa-solid fa-bullhorn"></i></span>
-                <p class="text-xs sm:text-sm text-slate-300">
-                    <strong class="text-white">Última actualización:</strong> El bypass se ha adaptado a la actualización reciente de Roblox. Todos los scripts funcionan con normalidad.
-                </p>
-            </div>
-            <span class="text-[10px] font-mono text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20 whitespace-nowrap">v4.2.0</span>
-        </div>
-
-        <!-- General Status Hero Banner -->
+        <!-- Banner General Status -->
         <div class="glass-card rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
             <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
@@ -88,219 +77,317 @@
                 <div class="relative flex items-center justify-center">
                     <span class="animate-ping absolute inline-flex h-12 w-12 rounded-full bg-emerald-400 opacity-75"></span>
                     <div class="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 text-xl pulse-glow">
-                        <i class="fa-solid fa-shield-halved"></i>
+                        <i class="fa-solid fa-check"></i>
                     </div>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-bold text-white">Sistemas Operativos & Undetected</h2>
-                    <p class="text-slate-400 text-sm mt-0.5">Ikgonavi Hub no presenta baneos ni detecciones activas.</p>
+                    <h2 class="text-2xl font-bold text-white">Ikgonavi Hub Online</h2>
+                    <p class="text-slate-400 text-sm mt-0.5">Todos los scripts principales y servidores API funcionando al 100%.</p>
                 </div>
             </div>
 
             <div class="flex gap-4 font-mono text-xs z-10 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-slate-800 pt-4 sm:pt-0">
                 <div class="bg-slate-900/80 px-4 py-2.5 rounded-xl border border-slate-800/80 text-center">
                     <span class="text-slate-500 block text-[10px] uppercase tracking-wider">Uptime</span>
-                    <span class="text-emerald-400 font-bold text-sm">100%</span>
+                    <span class="text-emerald-400 font-bold text-sm">99.9%</span>
                 </div>
                 <div class="bg-slate-900/80 px-4 py-2.5 rounded-xl border border-slate-800/80 text-center">
-                    <span class="text-slate-500 block text-[10px] uppercase tracking-wider">Latencia</span>
-                    <span class="text-slate-200 font-bold text-sm" id="ping-val">15 ms</span>
+                    <span class="text-slate-500 block text-[10px] uppercase tracking-wider">Ping API</span>
+                    <span class="text-slate-200 font-bold text-sm" id="ping-val">14 ms</span>
                 </div>
                 <div class="bg-slate-900/80 px-4 py-2.5 rounded-xl border border-slate-800/80 text-center">
                     <span class="text-slate-500 block text-[10px] uppercase tracking-wider">Bypass</span>
-                    <span class="text-indigo-400 font-bold text-sm">Active</span>
+                    <span class="text-indigo-400 font-bold text-sm">Undetected</span>
                 </div>
             </div>
         </div>
 
-        <!-- Carga Oficial / Loadstring Box (CORREGIDO Y EXPLICADO) -->
-        <div class="glass-card rounded-2xl p-6 bg-gradient-to-r from-slate-900/90 via-indigo-950/20 to-slate-900/90 border border-indigo-500/30">
-            <div class="space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div>
-                        <h3 class="text-white font-semibold text-base flex items-center gap-2">
-                            <i class="fa-solid fa-code text-indigo-400"></i> Code Loader Oficial
-                        </h3>
-                        <p class="text-xs text-slate-400 mt-1">Copia y pega este código en la consola de tu ejecutor preferido.</p>
-                    </div>
-                    <span class="text-[11px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-lg w-fit">
-                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Usa enlace RAW (Repo Público)
-                    </span>
-                </div>
+        <!-- LOADERS PRINCIPALES -->
+        <div class="space-y-4">
+            <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                <i class="fa-solid fa-code text-indigo-400"></i> Loadstrings Oficiales
+            </h3>
 
-                <div class="flex items-center gap-2 bg-slate-950 px-4 py-3 rounded-xl border border-slate-800 font-mono text-xs text-indigo-300 overflow-x-auto">
-                    <!-- REEMPLAZA ESTA URL CON TU URL REAL DE RAW.GITHUBUSERCONTENT.COM -->
-                    <span class="select-all whitespace-nowrap" id="loadstring-text">
-                        loadstring(game:HttpGet("https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/loader.lua"))()
-                    </span>
-                    <button onclick="copyLoadstring()" id="copy-btn" class="ml-auto bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-sans transition flex items-center gap-1.5 shrink-0">
-                        <i class="fa-regular fa-copy"></i> Copiar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Buscador de Módulos y Juegos -->
-        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <h3 class="font-bold text-white text-lg self-start sm:self-center">Estado por Juego & Servicio</h3>
-            <div class="relative w-full sm:w-72">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                <input type="text" id="status-search" onkeyup="filterStatus()" placeholder="Buscar juego o módulo..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
-            </div>
-        </div>
-
-        <!-- TABLA 1: Juegos Soportados por Ikgonavi Hub -->
-        <div class="glass-card rounded-2xl overflow-hidden">
-            <div class="p-4 border-b border-slate-800/80 bg-slate-900/40 font-semibold text-xs text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                <span>Juego / Experiencia</span>
-                <span>Estado de Funciones</span>
-            </div>
-            <div class="divide-y divide-slate-800/60 font-sans" id="games-list">
+            <div class="grid grid-cols-1 gap-4">
                 
-                <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-gamepad text-indigo-400"></i>
-                        <div>
-                            <p class="text-sm font-medium text-white item-title">Blox Fruits</p>
-                            <p class="text-xs text-slate-400">Auto Farm, Auto Chest, Raid & ESP</p>
+                <!-- Hub Principal Loader -->
+                <div class="glass-card rounded-2xl p-5 border-l-4 border-l-indigo-500 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 text-xs"><i class="fa-solid fa-star"></i></span>
+                            <h4 class="text-white font-semibold text-sm">Ikgonavi Hub Principal (Universal & Games)</h4>
                         </div>
+                        <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
+                            AUTO-UPDATE
+                        </span>
                     </div>
-                    <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
-                    </span>
+                    <div class="flex items-center gap-2 bg-slate-950 px-3.5 py-2.5 rounded-xl border border-slate-800 font-mono text-xs text-indigo-300 overflow-x-auto">
+                        <span class="select-all whitespace-nowrap" id="loadstring-hub">loadstring(game:HttpGet("https://raw.githubusercontent.com/ikgmonxr/Ikgonavi/refs/heads/main/Hub"))()</span>
+                        <button onclick="copyCode('loadstring-hub', 'btn-hub')" id="btn-hub" class="ml-auto bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-sans transition flex items-center gap-1.5 shrink-0">
+                            <i class="fa-regular fa-copy"></i> Copiar
+                        </button>
+                    </div>
                 </div>
 
-                <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-crosshairs text-indigo-400"></i>
-                        <div>
-                            <p class="text-sm font-medium text-white item-title">Rivals</p>
-                            <p class="text-xs text-slate-400">Aimbot Silent, Wallhack, Hitbox Expander</p>
+                <!-- Dual Grid para MVS y MM2 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <!-- Murder vs Sheriff -->
+                    <div class="glass-card rounded-2xl p-5 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 text-xs"><i class="fa-solid fa-crosshairs"></i></span>
+                                <h4 class="text-white font-semibold text-sm">Duels (Murder vs Sheriff)</h4>
+                            </div>
+                            <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
+                                WORKING
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-950 px-3.5 py-2.5 rounded-xl border border-slate-800 font-mono text-xs text-indigo-300 overflow-x-auto">
+                            <span class="select-all whitespace-nowrap" id="loadstring-mvs">loadstring(game:HttpGet("https://https-api-ikg-com-api-v1-luascripts.onrender.com/api/script/34e93f16f26764708ccb5c63e2372341"))()</span>
+                            <button onclick="copyCode('loadstring-mvs', 'btn-mvs')" id="btn-mvs" class="ml-auto bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-xs font-sans transition flex items-center gap-1.5 shrink-0">
+                                <i class="fa-regular fa-copy"></i> Copiar
+                            </button>
                         </div>
                     </div>
-                    <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Working
-                    </span>
-                </div>
 
-                <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-house text-indigo-400"></i>
-                        <div>
-                            <p class="text-sm font-medium text-white item-title">Brookhaven RP</p>
-                            <p class="text-xs text-slate-400">Avatar Unlocks, Speed, Vehicle Mods</p>
+                    <!-- Murder Mystery 2 -->
+                    <div class="glass-card rounded-2xl p-5 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="p-1.5 rounded-lg bg-rose-500/20 text-rose-400 text-xs"><i class="fa-solid fa-skull"></i></span>
+                                <h4 class="text-white font-semibold text-sm">MM2 (Murder Mystery 2)</h4>
+                            </div>
+                            <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
+                                WORKING
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-950 px-3.5 py-2.5 rounded-xl border border-slate-800 font-mono text-xs text-indigo-300 overflow-x-auto">
+                            <span class="select-all whitespace-nowrap" id="loadstring-mm2">loadstring(game:HttpGet("https://https-api-ikg-com-api-v1-luascripts.onrender.com/api/script/7752d53d155a5d26715209fab1438cd9"))()</span>
+                            <button onclick="copyCode('loadstring-mm2', 'btn-mm2')" id="btn-mm2" class="ml-auto bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-xs font-sans transition flex items-center gap-1.5 shrink-0">
+                                <i class="fa-regular fa-copy"></i> Copiar
+                            </button>
                         </div>
                     </div>
-                    <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
-                    </span>
-                </div>
 
-                <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-dog text-indigo-400"></i>
-                        <div>
-                            <p class="text-sm font-medium text-white item-title">Pet Simulator 99</p>
-                            <p class="text-xs text-slate-400">Auto Hatch, Farm Diamonds, Merchant Bypass</p>
-                        </div>
-                    </div>
-                    <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Updating
-                    </span>
-                </div>
-
-                <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-gun text-indigo-400"></i>
-                        <div>
-                            <p class="text-sm font-medium text-white item-title">Arsenal</p>
-                            <p class="text-xs text-slate-400">Kill All, ESP, FOV Circle, Rapid Fire</p>
-                        </div>
-                    </div>
-                    <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
-                    </span>
-                </div>
-
-                <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-bolt text-indigo-400"></i>
-                        <div>
-                            <p class="text-sm font-medium text-white item-title">Universal / Global Script</p>
-                            <p class="text-xs text-slate-400">Fly, Noclip, Speed, Infinite Jump, Dex Explorer</p>
-                        </div>
-                    </div>
-                    <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
-                    </span>
                 </div>
 
             </div>
         </div>
 
-        <!-- TABLA 2: Estado de Ejecutores Compatibles (PC / Mobile) -->
+        <!-- COMPATIBILIDAD DE EJECUTORES -->
         <div class="glass-card rounded-2xl overflow-hidden">
             <div class="p-5 border-b border-slate-800/80 bg-slate-900/40 flex items-center justify-between">
                 <h3 class="font-semibold text-white text-base flex items-center gap-2">
-                    <i class="fa-solid fa-mobile-screen-button text-indigo-400"></i> Compatibilidad de Ejecutores
+                    <i class="fa-solid fa-terminal text-indigo-400"></i> Compatibilidad de Ejecutores
                 </h3>
-                <span class="text-xs font-mono text-slate-400">UNC Tested 95%+</span>
+                <span class="text-xs font-mono text-slate-400">Soporte Multiplataforma</span>
             </div>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-800/60 font-sans">
-                <!-- PC Executors -->
-                <div class="p-4 space-y-3">
-                    <p class="text-xs font-mono text-indigo-400 font-semibold uppercase tracking-wider">Windows / PC</p>
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/40">
-                            <span class="text-xs text-white">Solara</span>
-                            <span class="text-[11px] text-emerald-400 font-mono">Compatible</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/40">
-                            <span class="text-xs text-white">Wave</span>
-                            <span class="text-[11px] text-emerald-400 font-mono">Compatible</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/40">
-                            <span class="text-xs text-white">Celery</span>
-                            <span class="text-[11px] text-emerald-400 font-mono">Compatible</span>
-                        </div>
+            <div class="p-5 space-y-4">
+                <!-- Advertencia No Soportados -->
+                <div class="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 text-rose-300 text-xs font-medium">
+                        <i class="fa-solid fa-circle-xmark text-rose-400 text-sm"></i>
+                        <span><strong>No compatibles:</strong> Solara y Xeno se encuentran parcheados / no soportados por el hub.</span>
                     </div>
+                    <span class="text-[10px] font-mono bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded border border-rose-500/30 shrink-0">UNSUPPORTED</span>
                 </div>
 
-                <!-- Mobile Executors -->
-                <div class="p-4 space-y-3">
-                    <p class="text-xs font-mono text-emerald-400 font-semibold uppercase tracking-wider">Android / iOS</p>
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/40">
-                            <span class="text-xs text-white">Delta Mobile</span>
-                            <span class="text-[11px] text-emerald-400 font-mono">Compatible</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/40">
-                            <span class="text-xs text-white">Codex</span>
-                            <span class="text-[11px] text-emerald-400 font-mono">Compatible</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/40">
-                            <span class="text-xs text-white">Hydrogen</span>
-                            <span class="text-[11px] text-emerald-400 font-mono">Compatible</span>
-                        </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+                        <span class="text-white">Delta</span>
+                        <span class="text-emerald-400 text-[10px] font-bold">✓ ONLINE</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+                        <span class="text-white">Wave</span>
+                        <span class="text-emerald-400 text-[10px] font-bold">✓ ONLINE</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+                        <span class="text-white">Codex</span>
+                        <span class="text-emerald-400 text-[10px] font-bold">✓ ONLINE</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+                        <span class="text-white">Hydrogen</span>
+                        <span class="text-emerald-400 text-[10px] font-bold">✓ ONLINE</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+                        <span class="text-white">Celery</span>
+                        <span class="text-emerald-400 text-[10px] font-bold">✓ ONLINE</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+                        <span class="text-white">Vega X</span>
+                        <span class="text-emerald-400 text-[10px] font-bold">✓ ONLINE</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80 opacity-60 flex items-center justify-between bg-rose-950/10">
+                        <span class="text-slate-400 line-through">Solara</span>
+                        <span class="text-rose-400 text-[10px] font-bold">✗ OFF</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800/80 opacity-60 flex items-center justify-between bg-rose-950/10">
+                        <span class="text-slate-400 line-through">Xeno</span>
+                        <span class="text-rose-400 text-[10px] font-bold">✗ OFF</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Uptime Graph (Visual) -->
-        <div class="glass-card rounded-2xl p-6 space-y-4">
-            <div class="flex items-center justify-between">
-                <h3 class="font-semibold text-white text-sm">Disponibilidad en los últimos 45 días</h3>
-                <span class="text-xs text-emerald-400 font-mono">99.9% Uptime</span>
+        <!-- LISTA DE JUEGOS DEL HUB -->
+        <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <h3 class="font-bold text-white text-lg self-start sm:self-center">Catálogo de Juegos Soportados</h3>
+                <div class="relative w-full sm:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="text" id="status-search" onkeyup="filterStatus()" placeholder="Buscar juego..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                </div>
             </div>
-            
-            <div class="grid grid-cols-30 sm:grid-cols-45 gap-1 h-9 items-end" id="uptime-bars"></div>
 
-            <div class="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-800/60 font-mono">
-                <span>Hace 45 días</span>
-                <span>Sin interrupciones masivas</span>
-                <span>Hoy</span>
+            <div class="glass-card rounded-2xl overflow-hidden">
+                <div class="divide-y divide-slate-800/60 font-sans" id="games-list">
+                    
+                    <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-crosshairs text-indigo-400"></i>
+                            <div>
+                                <p class="text-sm font-medium text-white item-title">Duels (mvs)</p>
+                                <p class="text-xs text-slate-400">Murder vs Sheriff Duels Script Directo</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
+                        </span>
+                    </div>
+
+                    <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-skull text-indigo-400"></i>
+                            <div>
+                                <p class="text-sm font-medium text-white item-title">MM2 (Murder Mystery 2)</p>
+                                <p class="text-xs text-slate-400">Esp, Silent Aim, Auto Farm & Godmode</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
+                        </span>
+                    </div>
+
+                    <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-wind text-indigo-400"></i>
+                            <div>
+                                <p class="text-sm font-medium text-white item-title">Oxygen Per</p>
+                                <p class="text-xs text-slate-400">Ikgonavi Hub Integrated</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
+                        </span>
+                    </div>
+
+                    <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-stairs text-indigo-400"></i>
+                            <div>
+                                <p class="text-sm font-medium text-white item-title">+1 Ladder Per Click</p>
+                                <p class="text-xs text-slate-400">Auto Click, Infinite Ladder, Auto Rebirth</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
+                        </span>
+                    </div>
+
+                    <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-person-running text-indigo-400"></i>
+                            <div>
+                                <p class="text-sm font-medium text-white item-title">Sube A una rampa</p>
+                                <p class="text-xs text-slate-400">Speed Boost, Auto Climb, Teleports</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
+                        </span>
+                    </div>
+
+                    <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-gun text-indigo-400"></i>
+                            <div>
+                                <p class="text-sm font-medium text-white item-title">Dispara</p>
+                                <p class="text-xs text-slate-400">Aimbot, Infinite Ammo, Instant Win</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
+                        </span>
+                    </div>
+
+                    <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
+                            <div>
+                                <p class="text-sm font-medium text-white item-title">Aura</p>
+                                <p class="text-xs text-slate-400">Aura Modifiers, Max Power, Auto Collect</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
+                        </span>
+                    </div>
+
+                    <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-box text-indigo-400"></i>
+                            <div>
+                                <p class="text-sm font-medium text-white item-title">Escapa del barril</p>
+                                <p class="text-xs text-slate-400">Auto Escape, Speed Modifier, Godmode</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
+                        </span>
+                    </div>
+
+                    <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-hand-fist text-indigo-400"></i>
+                            <div>
+                                <p class="text-sm font-medium text-white item-title">+1 click x fuerza</p>
+                                <p class="text-xs text-slate-400">Auto Click, Farm Strength, Auto Wins</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
+                        </span>
+                    </div>
+
+                    <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-hat-wizard text-indigo-400"></i>
+                            <div>
+                                <p class="text-sm font-medium text-white item-title">+1 Evolución Mágica</p>
+                                <p class="text-xs text-slate-400">Auto Evolution, Infinite Gems, Auto Rebirth</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
+                        </span>
+                    </div>
+
+                    <div class="p-4 sm:px-6 flex items-center justify-between hover:bg-slate-800/30 transition item-row">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-person-walking-arrow-right text-indigo-400"></i>
+                            <div>
+                                <p class="text-sm font-medium text-white item-title">ObbyEscape</p>
+                                <p class="text-xs text-slate-400">Auto Finish Obby, Fly & Teleport to End</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Working
+                        </span>
+                    </div>
+
+                </div>
             </div>
         </div>
 
@@ -311,55 +398,34 @@
         <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p>© 2026 IKGONAVI HUB. Todos los derechos reservados.</p>
             <p class="flex items-center gap-4">
-                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Sistemas En Línea</span>
-                <a href="#" class="hover:text-slate-300 transition">Soporte</a>
-                <a href="#" class="hover:text-slate-300 transition">Discord</a>
+                <a href="https://discord.gg/nkVBp9xXdS" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300 transition flex items-center gap-1">
+                    <i class="fa-brands fa-discord"></i> Unirse al Discord
+                </a>
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Todos los sistemas operativos</span>
             </p>
         </div>
     </footer>
 
-    <!-- Script de Interactividad -->
+    <!-- Interactive Scripts -->
     <script>
-        // Generar barras visuales de disponibilidad
-        const barsContainer = document.getElementById('uptime-bars');
-        const totalBars = window.innerWidth < 640 ? 30 : 45;
-        
-        for (let i = 0; i < totalBars; i++) {
-            const bar = document.createElement('div');
-            const randomHeight = Math.floor(Math.random() * 35) + 65; 
-            bar.className = 'bg-emerald-500/80 hover:bg-emerald-400 transition-all rounded-sm cursor-pointer group relative';
-            bar.style.height = `${randomHeight}%`;
-            bar.innerHTML = `<div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block bg-slate-900 border border-slate-700 text-[10px] text-white px-2 py-1 rounded shadow-xl whitespace-nowrap z-20 font-mono">100% Operational</div>`;
-            barsContainer.appendChild(bar);
-        }
-
-        // Simulación de botón refrescar
-        function checkStatus() {
-            const icon = document.getElementById('refresh-icon');
-            icon.classList.add('fa-spin');
-            
-            setTimeout(() => {
-                icon.classList.remove('fa-spin');
-                document.getElementById('ping-val').innerText = Math.floor(Math.random() * 6 + 12) + ' ms';
-            }, 600);
-        }
-
-        // Copiar el loadstring al portapapeles
-        function copyLoadstring() {
-            const textToCopy = document.getElementById('loadstring-text').innerText.trim();
+        // Copiar scripts dinámicamente
+        function copyCode(elementId, buttonId) {
+            const textToCopy = document.getElementById(elementId).innerText.trim();
             navigator.clipboard.writeText(textToCopy);
             
-            const btn = document.getElementById('copy-btn');
+            const btn = document.getElementById(buttonId);
+            const originalText = btn.innerHTML;
+            
             btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
-            btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
+            btn.classList.add('bg-emerald-600');
             
             setTimeout(() => {
-                btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar';
-                btn.classList.replace('bg-emerald-600', 'bg-indigo-600');
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-emerald-600');
             }, 2000);
         }
 
-        // Filtro de búsqueda en la lista de juegos
+        // Filtro de búsqueda en tiempo real
         function filterStatus() {
             const input = document.getElementById('status-search').value.toLowerCase();
             const rows = document.querySelectorAll('.item-row');
@@ -372,6 +438,17 @@
                     row.style.display = 'none';
                 }
             });
+        }
+
+        // Simulación de botón refrescar
+        function checkStatus() {
+            const icon = document.getElementById('refresh-icon');
+            icon.classList.add('fa-spin');
+            
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                document.getElementById('ping-val').innerText = Math.floor(Math.random() * 5 + 12) + ' ms';
+            }, 500);
         }
     </script>
 </body>
