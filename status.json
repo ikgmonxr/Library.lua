@@ -4,3 +4,4 @@
   "mvs_script": "loadstring(game:HttpGet(\"https://https-api-ikg-com-api-v1-luascripts.onrender.com/api/script/34e93f16f26764708ccb5c63e2372341\"))()",
   "mm2_script": "loadstring(game:HttpGet(\"https://https-api-ikg-com-api-v1-luascripts.onrender.com/api/script/7752d53d155a5d26715209fab1438cd9\"))()"
 }
+ 
